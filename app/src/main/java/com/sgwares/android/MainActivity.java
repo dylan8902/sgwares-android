@@ -1,5 +1,6 @@
 package com.sgwares.android;
 
+import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -10,14 +11,17 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.sgwares.android.models.Leaderboard;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener,
+        LeaderboardFragment.OnListFragmentInteractionListener {
 
     private static final String TAG = "MainActivity";
     private FirebaseAuth mAuth;
@@ -90,21 +94,30 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
+        Fragment newFragment = null;
 
         if (id == R.id.nav_new_game) {
             //TODO Show current open game boards, option to search through them or create a new one
         } else if (id == R.id.nav_your_games) {
             //TODO show a history of games current and old
         } else if (id == R.id.nav_leaderboard) {
-            //TODO Show the current leaderboard scores
+            newFragment = new LeaderboardFragment();
         } else if (id == R.id.nav_settings) {
-            getFragmentManager().beginTransaction()
-                    .replace(R.id.main_content, new SettingsFragment())
-                    .commit();
+            newFragment = new SettingsFragment();
         }
+
+        getFragmentManager().beginTransaction()
+                .replace(R.id.content_main, newFragment)
+                .commit();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    @Override
+    public void onListFragmentInteraction(Leaderboard.Score item) {
+        Log.d(TAG, "Item clicked: " + item);
+    }
+
 }
