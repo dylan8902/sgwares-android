@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="Account"
+        android:key="pref_key_account">
+        <CheckBoxPreference
+            android:key="pref_key_account_visible"
+            android:summary="Your profile is visible so anyone can invite you to a game"
+            android:title="Profile Visible"
+            android:defaultValue="true" />
+    </PreferenceCategory>
+</PreferenceScreen>

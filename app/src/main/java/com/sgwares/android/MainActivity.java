@@ -1,5 +1,6 @@
 package com.sgwares.android;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -9,13 +10,11 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -29,8 +28,10 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         mAuth = FirebaseAuth.getInstance();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        Log.d(TAG, "Current User: " + currentUser);
+        if (mAuth.getCurrentUser() == null) {
+            Intent loginActivity = new Intent(this, LoginActivity.class);
+            startActivity(loginActivity);
+        }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -97,7 +98,9 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_leaderboard) {
             //TODO Show the current leaderboard scores
         } else if (id == R.id.nav_settings) {
-            //TODO show a preferences frame
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.main_content, new SettingsFragment())
+                    .commit();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

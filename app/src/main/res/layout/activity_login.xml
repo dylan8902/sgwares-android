@@ -4,18 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.sgwares.android.MainActivity"
-    tools:showIn="@layout/app_bar_main"
-    android:id="@+id/main_content">
+    tools:context="com.sgwares.android.LoginActivity">
 
-    <TextView
+    <Button
+        android:id="@+id/not_now"
+        style="@style/Widget.AppCompat.Button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:text="Not Now" />
 
 </android.support.constraint.ConstraintLayout>
