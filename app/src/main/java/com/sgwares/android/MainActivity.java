@@ -1,6 +1,5 @@
 package com.sgwares.android;
 
-import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -26,15 +25,14 @@ public class MainActivity extends AppCompatActivity
         LeaderboardFragment.OnListFragmentInteractionListener {
 
     private static final String TAG = "MainActivity";
-    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mAuth = FirebaseAuth.getInstance();
-        if (mAuth.getCurrentUser() == null) {
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        if (auth.getCurrentUser() == null) {
             Intent loginActivity = new Intent(this, LoginActivity.class);
             startActivity(loginActivity);
         }
@@ -96,21 +94,22 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
-        Fragment newFragment = null;
 
         if (id == R.id.nav_new_game) {
             //TODO Show current open game boards, option to search through them or create a new one
+            Intent gameActivity = new Intent(this, GameActivity.class);
+            startActivity(gameActivity);
         } else if (id == R.id.nav_your_games) {
             //TODO show a history of games current and old
         } else if (id == R.id.nav_leaderboard) {
-            newFragment = new LeaderboardFragment();
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.content_main, new LeaderboardFragment())
+                    .commit();
         } else if (id == R.id.nav_settings) {
-            newFragment = new SettingsFragment();
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.content_main, new SettingsFragment())
+                    .commit();
         }
-
-        getFragmentManager().beginTransaction()
-                .replace(R.id.content_main, newFragment)
-                .commit();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
