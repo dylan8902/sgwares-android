@@ -7,35 +7,86 @@ import android.graphics.Paint;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 
-/**
- * Created by dylan8902 on 07/05/2017.
- */
-
 @IgnoreExtraProperties
 public class Move {
     private String key;
-    private int startX;
-    private int endX;
-    private int startY;
-    private int endY;
+    // The start co-ordinates of the move
+    private int x;
+    private int y;
+    // The direction: 1 for vertical down, 0 for horizontal left
+    private int direction;
+    // The user that made the move
     private User user;
 
     public Move() {
 
     }
 
-    public Move(int startX, int endX, int startY, int endY) {
-        this.startX = startX;
-        this.startY = startY;
-        this.endX = endX;
-        this.endY = endY;
+    public Move(int x, int y, int direction) {
+        this.x = x;
+        this.y = y;
+        this.direction = direction;
+    }
+
+    @Exclude
+    public String getKey() {
+        return key;
+    }
+
+    @Exclude
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    public int getDirection() {
+        return direction;
+    }
+
+    public void setDirection(int direction) {
+        this.direction = direction;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Exclude
     public void draw(Canvas canvas) {
         Paint whitePaint = new Paint();
         whitePaint.setColor(Color.WHITE);
-        whitePaint.setStrokeWidth(2);
+        whitePaint.setStrokeWidth(4);
+
+        int startX = x * Game.SPACING;
+        int startY = y * Game.SPACING;
+        int endX = x * Game.SPACING;
+        int endY = y * Game.SPACING;
+
+        if (direction == 0) {
+            endX = endX + Game.SPACING;
+        } else {
+            endY = endY + Game.SPACING;
+        }
+
         canvas.drawLine(startX, startY, endX, endY, whitePaint);
     }
 
