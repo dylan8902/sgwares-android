@@ -1,8 +1,10 @@
-package com.sgwares.android;
+package com.sgwares.android.fragments;
 
 
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
+
+import com.sgwares.android.R;
 
 /**
  * Created by dylan8902 on 06/05/2017.

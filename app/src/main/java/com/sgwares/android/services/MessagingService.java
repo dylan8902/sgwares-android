@@ -1,4 +1,4 @@
-package com.sgwares.android;
+package com.sgwares.android.services;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -11,6 +11,8 @@ import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.sgwares.android.MainActivity;
+import com.sgwares.android.R;
 
 /**
  * Created by dylan8902 on 06/05/2017.

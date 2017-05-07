@@ -1,4 +1,4 @@
-package com.sgwares.android;
+package com.sgwares.android.adapters;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -6,7 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.sgwares.android.LeaderboardFragment.OnListFragmentInteractionListener;
+import com.sgwares.android.R;
+import com.sgwares.android.fragments.LeaderboardFragment.OnListFragmentInteractionListener;
 import com.sgwares.android.models.User;
 
 import java.util.List;

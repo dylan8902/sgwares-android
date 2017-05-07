@@ -17,6 +17,8 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.sgwares.android.fragments.LeaderboardFragment;
+import com.sgwares.android.fragments.SettingsFragment;
 import com.sgwares.android.models.User;
 
 public class MainActivity extends AppCompatActivity

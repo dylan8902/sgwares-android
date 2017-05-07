@@ -1,4 +1,4 @@
-package com.sgwares.android;
+package com.sgwares.android.fragments;
 
 import android.app.Fragment;
 import android.content.Context;
@@ -16,6 +16,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.sgwares.android.adapters.LeaderboardRecyclerViewAdapter;
+import com.sgwares.android.R;
 import com.sgwares.android.models.User;
 
 import java.util.ArrayList;

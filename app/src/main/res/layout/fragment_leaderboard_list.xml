@@ -10,5 +10,5 @@
     android:layout_marginRight="16dp"
     android:background="#ffffff"
     app:layoutManager="LinearLayoutManager"
-    tools:context="com.sgwares.android.LeaderboardFragment"
+    tools:context="com.sgwares.android.fragments.LeaderboardFragment"
     tools:listitem="@layout/fragment_leaderboard" />

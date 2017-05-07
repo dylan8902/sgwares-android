@@ -1,4 +1,4 @@
-package com.sgwares.android;
+package com.sgwares.android.services;
 
 import com.google.firebase.iid.FirebaseInstanceIdService;
 
