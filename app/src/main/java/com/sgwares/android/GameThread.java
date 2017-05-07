@@ -8,12 +8,12 @@ public class GameThread extends Thread {
 
     private static final String TAG = GameThread.class.getSimpleName();
     private final SurfaceHolder surfaceHolder;
-    private GameSurface gamePanel;
+    private GameSurface surface;
 
-    public GameThread(SurfaceHolder surfaceHolder, GameSurface gamePanel) {
+    public GameThread(SurfaceHolder surfaceHolder, GameSurface surface) {
         super();
         this.surfaceHolder = surfaceHolder;
-        this.gamePanel = gamePanel;
+        this.surface = surface;
     }
 
     private boolean running;
@@ -30,7 +30,7 @@ public class GameThread extends Thread {
             try {
                 canvas = this.surfaceHolder.lockCanvas();
                 synchronized (surfaceHolder) {
-                    this.gamePanel.draw(canvas);
+                    this.surface.draw(canvas);
                 }
             } finally {
                 if (canvas != null) {

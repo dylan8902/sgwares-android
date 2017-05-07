@@ -12,7 +12,7 @@ import java.util.List;
 @IgnoreExtraProperties
 public class Game {
 
-    public static final int SPACING = 140;
+    public static final int SPACING = 200;
     private static final int DOT_SIZE = 6;
 
     private String key;
