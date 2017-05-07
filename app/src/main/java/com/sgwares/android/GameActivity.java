@@ -6,7 +6,6 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import com.sgwares.android.models.Game;
-import com.sgwares.android.models.Move;
 import com.sgwares.android.models.User;
 
 import java.util.ArrayList;
@@ -28,28 +27,6 @@ public class GameActivity extends Activity {
         participants.add(playerA);
         participants.add(playerB);
         game.setParticipants(participants);
-        List<Move> moves = new ArrayList<>();
-
-        // -. . .
-        //  . . .
-        Move move = new Move(0, 0, 0);
-        move.setUser(playerA);
-        moves.add(move);
-
-        // -. . .
-        //| . . .
-        move = new Move(0, 0, 1);
-        move.setUser(playerB);
-        moves.add(move);
-
-        // -.-. .
-        //| . . .
-        move = new Move(1, 0, 0);
-        move.setUser(playerA);
-        moves.add(move);
-
-        game.setMoves(moves);
-
         setContentView(new GameSurface(this, game));
     }
 

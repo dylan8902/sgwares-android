@@ -8,6 +8,7 @@ import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @IgnoreExtraProperties
 public class Game {
@@ -22,7 +23,8 @@ public class Game {
     private boolean open;
 
     public Game() {
-
+        this.moves = new CopyOnWriteArrayList<>();
+        this.participants = new CopyOnWriteArrayList<>();
     }
 
     @Exclude
@@ -67,6 +69,11 @@ public class Game {
 
     public void setOpen(boolean open) {
         this.open = open;
+    }
+
+    @Exclude
+    public void addMove(Move move) {
+        this.moves.add(move);
     }
 
     @Exclude

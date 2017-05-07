@@ -10,6 +10,10 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import com.sgwares.android.models.Game;
+import com.sgwares.android.models.Move;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 
@@ -62,12 +66,15 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
                 ((Activity)getContext()).finish();
             }
 
-            pen.setX(event.getX());
-            pen.setY(event.getY());
+            pen.addMovement(new Movement(event.getX(), event.getY()));
             invalidate();
         }
         if (event.getAction() == MotionEvent.ACTION_UP) {
-            // motion complete, what move??
+            Move move = pen.completeMove();
+            if (move != null) {
+                game.addMove(move);
+            }
+            invalidate();
         }
         return true;
     }
@@ -80,23 +87,56 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 
     private class Pen {
         private static final int SIZE = 50;
-        private float x;
-        private float y;
-
+        private List<Movement> movements;
         public Pen() {
-            this.x = 200;
-            this.y = 200;
+            this.movements = new ArrayList<>();
         }
-        public void setX(float x) {
-            this.x = x;
+        public void addMovement(Movement movement) {
+            movements.add(movement);
         }
-        public void setY(float y) {
-            this.y = y;
+        public Move completeMove() {
+            Movement start = movements.get(0);
+            Movement end = movements.get(movements.size() - 1);
+            movements.clear();
+
+            int startX = Math.round(start.getX() / Game.SPACING);
+            int startY = Math.round(start.getY() / Game.SPACING);
+            int endX = Math.round(end.getX() / Game.SPACING);
+            int endY = Math.round(end.getY() / Game.SPACING);
+            if (endX > startX) {
+                return new Move(startX, startY, 0);
+            } else if (endY > startY) {
+                return new Move(startX, startY, 1);
+            } else if  (endY < startY) {
+                return new Move(startX, startY - 1, 1);
+            } else if  (endX < startX) {
+                return new Move(startX - 1, startY, 0);
+            } else {
+                return null;
+            }
         }
         public void draw(Canvas canvas) {
             Paint paint = new Paint();
             paint.setColor(Color.WHITE);
-            canvas.drawCircle(x, y, SIZE, paint);
+            if (movements.size() > 0) {
+                Movement movement = movements.get(movements.size() - 1);
+                canvas.drawCircle(movement.getX(), movement.getY(), SIZE, paint);
+            }
+        }
+    }
+
+    private class Movement {
+        private float x;
+        private float y;
+        public Movement(float x, float y) {
+            this.x = x;
+            this.y = y;
+        }
+        public float getX() {
+            return x;
+        }
+        public float getY() {
+            return y;
         }
     }
 
