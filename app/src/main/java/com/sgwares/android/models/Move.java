@@ -22,10 +22,11 @@ public class Move {
 
     }
 
-    public Move(int x, int y, int direction) {
+    public Move(int x, int y, int direction, User user) {
         this.x = x;
         this.y = y;
         this.direction = direction;
+        this.user = user;
     }
 
     @Exclude

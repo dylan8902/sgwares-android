@@ -5,12 +5,14 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import com.sgwares.android.models.Game;
 import com.sgwares.android.models.Move;
+import com.sgwares.android.models.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,14 +23,16 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
     private GameThread thread;
     private Game game;
     private Pen pen;
+    private User player;
 
-    public GameSurface(Context context, Game game) {
+    public GameSurface(Context context, Game game, User player) {
         super(context);
         getHolder().addCallback(this);
         setFocusable(true);
         setWillNotDraw(false);
         thread = new GameThread(getHolder(), this);
         this.game = game;
+        this.player = player;
         this.pen = new Pen();
     }
 
@@ -71,9 +75,12 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
         }
         if (event.getAction() == MotionEvent.ACTION_UP) {
             Move move = pen.completeMove();
-            if (move != null) {
+            if ((move != null) && (game.whosMove().equals(player))) {
                 game.addMove(move);
+            } else {
+                Log.d(TAG, "Not your turn, it's: " + game.whosMove());
             }
+
             invalidate();
         }
         return true;
@@ -104,13 +111,13 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
             int endX = Math.round(end.getX() / Game.SPACING);
             int endY = Math.round(end.getY() / Game.SPACING);
             if (endX > startX) {
-                return new Move(startX, startY, 0);
+                return new Move(startX, startY, 0, player);
             } else if (endY > startY) {
-                return new Move(startX, startY, 1);
+                return new Move(startX, startY, 1, player);
             } else if  (endY < startY) {
-                return new Move(startX, startY - 1, 1);
+                return new Move(startX, startY - 1, 1, player);
             } else if  (endX < startX) {
-                return new Move(startX - 1, startY, 0);
+                return new Move(startX - 1, startY, 0, player);
             } else {
                 return null;
             }

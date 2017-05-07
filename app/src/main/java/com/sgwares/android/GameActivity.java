@@ -22,12 +22,14 @@ public class GameActivity extends Activity {
         // Setup an example game
         Game game = new Game();
         User playerA = new User("Bob", 4);
+        playerA.setKey("abc");
         User playerB = new User("Dylan", 19);
+        playerA.setKey("def");
         List<User> participants = new ArrayList<>();
         participants.add(playerA);
         participants.add(playerB);
         game.setParticipants(participants);
-        setContentView(new GameSurface(this, game));
+        setContentView(new GameSurface(this, game, playerA));
     }
 
     @Override

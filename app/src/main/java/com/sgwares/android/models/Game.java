@@ -77,6 +77,12 @@ public class Game {
     }
 
     @Exclude
+    public User whosMove() {
+        //TODO calculate which participant's move is next based on number of moves
+        return getParticipants().get(0);
+    }
+
+    @Exclude
     public void draw(Canvas canvas) {
         Paint paint = new Paint();
         paint.setColor(Color.WHITE);
