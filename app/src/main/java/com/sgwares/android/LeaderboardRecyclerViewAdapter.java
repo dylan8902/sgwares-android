@@ -7,17 +7,17 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.sgwares.android.LeaderboardFragment.OnListFragmentInteractionListener;
-import com.sgwares.android.models.LeaderboardScore;
+import com.sgwares.android.models.User;
 
 import java.util.List;
 
 public class LeaderboardRecyclerViewAdapter extends RecyclerView.Adapter<LeaderboardRecyclerViewAdapter.ViewHolder> {
 
-    private final List<LeaderboardScore> mScores;
+    private final List<User> mUsers;
     private final OnListFragmentInteractionListener mListener;
 
-    public LeaderboardRecyclerViewAdapter(List<LeaderboardScore> scores, OnListFragmentInteractionListener listener) {
-        mScores = scores;
+    public LeaderboardRecyclerViewAdapter(List<User> users, OnListFragmentInteractionListener listener) {
+        mUsers = users;
         mListener = listener;
     }
 
@@ -30,11 +30,11 @@ public class LeaderboardRecyclerViewAdapter extends RecyclerView.Adapter<Leaderb
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.mScore = mScores.get(position);
-        String pos = String.valueOf(mScores.get(position).getPosition());
-        String points = String.valueOf(mScores.get(position).getPoints());
+        holder.mScore = mUsers.get(position);
+        String pos = String.valueOf(position + 1);
+        String points = String.valueOf(mUsers.get(position).getPoints());
         holder.mPositionView.setText(pos);
-        holder.mNameView.setText(mScores.get(position).getName());
+        holder.mNameView.setText(mUsers.get(position).getName());
         holder.mPointsView.setText(points);
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
@@ -49,7 +49,7 @@ public class LeaderboardRecyclerViewAdapter extends RecyclerView.Adapter<Leaderb
 
     @Override
     public int getItemCount() {
-        return mScores.size();
+        return mUsers.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -57,7 +57,7 @@ public class LeaderboardRecyclerViewAdapter extends RecyclerView.Adapter<Leaderb
         public final TextView mPositionView;
         public final TextView mNameView;
         public final TextView mPointsView;
-        public LeaderboardScore mScore;
+        public User mScore;
 
         public ViewHolder(View view) {
             super(view);

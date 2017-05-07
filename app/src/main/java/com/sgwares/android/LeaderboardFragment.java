@@ -14,9 +14,9 @@ import android.view.ViewGroup;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.sgwares.android.models.LeaderboardScore;
+import com.google.firebase.database.Query;
+import com.sgwares.android.models.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,10 +27,10 @@ public class LeaderboardFragment extends Fragment {
     private static final String ARG_COLUMN_COUNT = "column-count";
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
-    private List<LeaderboardScore> mScores = new ArrayList<>();
-    private List<String> mScoreIds = new ArrayList<>();
+    private List<User> mUsers = new ArrayList<>();
+    private List<String> mUserKeys = new ArrayList<>();
     private LeaderboardRecyclerViewAdapter mRecyclerViewAdapter;
-    private DatabaseReference leaderboardRef;
+    private Query leaderboardRef;
     private ChildEventListener childEventListener;
 
     public LeaderboardFragment() {
@@ -66,31 +66,33 @@ public class LeaderboardFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            mRecyclerViewAdapter = new LeaderboardRecyclerViewAdapter(mScores, mListener);
+            mRecyclerViewAdapter = new LeaderboardRecyclerViewAdapter(mUsers, mListener);
             recyclerView.setAdapter(mRecyclerViewAdapter);
         }
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        leaderboardRef = database.getReference("leaderboard");
+        leaderboardRef = database.getReference("users").orderByChild("points").limitToLast(10);
 
         childEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
                 Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
-                LeaderboardScore score = dataSnapshot.getValue(LeaderboardScore.class);
-                mScores.add(score);
-                mScoreIds.add(dataSnapshot.getKey());
-                mRecyclerViewAdapter.notifyItemInserted(mScores.size() - 1);
+                User user = dataSnapshot.getValue(User.class);
+                user.setKey(dataSnapshot.getKey());
+                mUsers.add(user);
+                mUserKeys.add(dataSnapshot.getKey());
+                mRecyclerViewAdapter.notifyItemInserted(mUsers.size() - 1);
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
                 Log.d(TAG, "onChildChanged:" + dataSnapshot.getKey());
-                LeaderboardScore score = dataSnapshot.getValue(LeaderboardScore.class);
-                int scoreIndex = mScoreIds.indexOf(dataSnapshot.getKey());
-                if (scoreIndex > -1) {
-                    mScores.set(scoreIndex, score);
-                    mRecyclerViewAdapter.notifyItemChanged(scoreIndex);
+                User user = dataSnapshot.getValue(User.class);
+                user.setKey(dataSnapshot.getKey());
+                int userIndex = mUserKeys.indexOf(dataSnapshot.getKey());
+                if (userIndex > -1) {
+                    mUsers.set(userIndex, user);
+                    mRecyclerViewAdapter.notifyItemChanged(userIndex);
                 } else {
                     Log.w(TAG, "onChildChanged:unknown_child:" + dataSnapshot.getKey());
                 }
@@ -99,11 +101,11 @@ public class LeaderboardFragment extends Fragment {
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
                 Log.d(TAG, "onChildRemoved:" + dataSnapshot.getKey());
-                int scoreIndex = mScoreIds.indexOf(dataSnapshot.getKey());
-                if (scoreIndex > -1) {
-                    mScoreIds.remove(scoreIndex);
-                    mScores.remove(scoreIndex);
-                    mRecyclerViewAdapter.notifyItemRemoved(scoreIndex);
+                int userIndex = mUserKeys.indexOf(dataSnapshot.getKey());
+                if (userIndex > -1) {
+                    mUserKeys.remove(userIndex);
+                    mUsers.remove(userIndex);
+                    mRecyclerViewAdapter.notifyItemRemoved(userIndex);
                 } else {
                     Log.w(TAG, "onChildRemoved:unknown_child:" + dataSnapshot.getKey());
                 }
@@ -144,7 +146,7 @@ public class LeaderboardFragment extends Fragment {
     }
 
     public interface OnListFragmentInteractionListener {
-        void onListFragmentInteraction(LeaderboardScore score);
+        void onListFragmentInteraction(User score);
     }
 
 }
