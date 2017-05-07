@@ -6,18 +6,32 @@ import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.sgwares.android.models.Leaderboard;
-import com.sgwares.android.models.Leaderboard.Score;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.sgwares.android.models.LeaderboardScore;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class LeaderboardFragment extends Fragment {
 
+    private static final String TAG = "LeaderboardFragment";
     private static final String ARG_COLUMN_COUNT = "column-count";
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
+    private List<LeaderboardScore> mScores = new ArrayList<>();
+    private List<String> mScoreIds = new ArrayList<>();
+    private LeaderboardRecyclerViewAdapter mRecyclerViewAdapter;
+    private DatabaseReference leaderboardRef;
+    private ChildEventListener childEventListener;
 
     public LeaderboardFragment() {
     }
@@ -52,8 +66,60 @@ public class LeaderboardFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new LeaderboardRecyclerViewAdapter(Leaderboard.SCORES, mListener));
+            mRecyclerViewAdapter = new LeaderboardRecyclerViewAdapter(mScores, mListener);
+            recyclerView.setAdapter(mRecyclerViewAdapter);
         }
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        leaderboardRef = database.getReference("leaderboard");
+
+        childEventListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
+                Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
+                LeaderboardScore score = dataSnapshot.getValue(LeaderboardScore.class);
+                mScores.add(score);
+                mScoreIds.add(dataSnapshot.getKey());
+                mRecyclerViewAdapter.notifyItemInserted(mScores.size() - 1);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
+                Log.d(TAG, "onChildChanged:" + dataSnapshot.getKey());
+                LeaderboardScore score = dataSnapshot.getValue(LeaderboardScore.class);
+                int scoreIndex = mScoreIds.indexOf(dataSnapshot.getKey());
+                if (scoreIndex > -1) {
+                    mScores.set(scoreIndex, score);
+                    mRecyclerViewAdapter.notifyItemChanged(scoreIndex);
+                } else {
+                    Log.w(TAG, "onChildChanged:unknown_child:" + dataSnapshot.getKey());
+                }
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                Log.d(TAG, "onChildRemoved:" + dataSnapshot.getKey());
+                int scoreIndex = mScoreIds.indexOf(dataSnapshot.getKey());
+                if (scoreIndex > -1) {
+                    mScoreIds.remove(scoreIndex);
+                    mScores.remove(scoreIndex);
+                    mRecyclerViewAdapter.notifyItemRemoved(scoreIndex);
+                } else {
+                    Log.w(TAG, "onChildRemoved:unknown_child:" + dataSnapshot.getKey());
+                }
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
+                Log.d(TAG, "onChildMoved:" + dataSnapshot.getKey());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w(TAG, "onCancelled", databaseError.toException());
+            }
+        };
+        leaderboardRef.addChildEventListener(childEventListener);
         return view;
     }
 
@@ -72,10 +138,13 @@ public class LeaderboardFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        if (childEventListener != null) {
+            leaderboardRef.removeEventListener(childEventListener);
+        }
     }
 
     public interface OnListFragmentInteractionListener {
-        void onListFragmentInteraction(Score score);
+        void onListFragmentInteraction(LeaderboardScore score);
     }
 
 }

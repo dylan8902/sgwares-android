@@ -7,16 +7,16 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.sgwares.android.LeaderboardFragment.OnListFragmentInteractionListener;
-import com.sgwares.android.models.Leaderboard.Score;
+import com.sgwares.android.models.LeaderboardScore;
 
 import java.util.List;
 
 public class LeaderboardRecyclerViewAdapter extends RecyclerView.Adapter<LeaderboardRecyclerViewAdapter.ViewHolder> {
 
-    private final List<Score> mScores;
+    private final List<LeaderboardScore> mScores;
     private final OnListFragmentInteractionListener mListener;
 
-    public LeaderboardRecyclerViewAdapter(List<Score> scores, OnListFragmentInteractionListener listener) {
+    public LeaderboardRecyclerViewAdapter(List<LeaderboardScore> scores, OnListFragmentInteractionListener listener) {
         mScores = scores;
         mListener = listener;
     }
@@ -31,8 +31,11 @@ public class LeaderboardRecyclerViewAdapter extends RecyclerView.Adapter<Leaderb
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mScore = mScores.get(position);
-        holder.mIdView.setText(mScores.get(position).id);
-        holder.mContentView.setText(mScores.get(position).content);
+        String pos = String.valueOf(mScores.get(position).getPosition());
+        String points = String.valueOf(mScores.get(position).getPoints());
+        holder.mPositionView.setText(pos);
+        holder.mNameView.setText(mScores.get(position).getName());
+        holder.mPointsView.setText(points);
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -51,20 +54,22 @@ public class LeaderboardRecyclerViewAdapter extends RecyclerView.Adapter<Leaderb
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
-        public final TextView mIdView;
-        public final TextView mContentView;
-        public Score mScore;
+        public final TextView mPositionView;
+        public final TextView mNameView;
+        public final TextView mPointsView;
+        public LeaderboardScore mScore;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            mIdView = (TextView) view.findViewById(R.id.id);
-            mContentView = (TextView) view.findViewById(R.id.content);
+            mPositionView = (TextView) view.findViewById(R.id.leaderboard_position);
+            mNameView = (TextView) view.findViewById(R.id.leaderboard_name);
+            mPointsView = (TextView) view.findViewById(R.id.leaderboard_points);
         }
 
         @Override
         public String toString() {
-            return super.toString() + " '" + mContentView.getText() + "'";
+            return super.toString() + " '" + mNameView.getText() + "'";
         }
     }
 }

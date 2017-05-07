@@ -17,7 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.sgwares.android.models.Leaderboard;
+import com.sgwares.android.models.LeaderboardScore;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onListFragmentInteraction(Leaderboard.Score item) {
+    public void onListFragmentInteraction(LeaderboardScore item) {
         Log.d(TAG, "Item clicked: " + item);
     }
 
