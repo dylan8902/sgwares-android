@@ -21,6 +21,7 @@ public class Game {
     private List<User> participants;
     private boolean finished;
     private boolean open;
+    private String background;
 
     public Game() {
         this.moves = new CopyOnWriteArrayList<>();
@@ -71,6 +72,14 @@ public class Game {
         this.open = open;
     }
 
+    public String getBackground() {
+        return background;
+    }
+
+    public void setBackground(String background) {
+        this.background = background;
+    }
+
     @Exclude
     public void addMove(Move move) {
         this.moves.add(move);
@@ -88,7 +97,7 @@ public class Game {
         paint.setColor(Color.WHITE);
 
         // Draw Background
-        canvas.drawColor(Color.RED);
+        canvas.drawColor(Color.parseColor(getBackground()));
 
         // Draw dots
         for (int x = 0; x < canvas.getWidth(); x = x + SPACING) {
@@ -98,7 +107,7 @@ public class Game {
         }
 
         // Draw moves
-        for (Move move : moves) {
+        for (Move move : getMoves()) {
             move.draw(canvas);
         }
     }

@@ -9,14 +9,16 @@ public class User {
     private String key;
     private String name;
     private int points;
+    private String colour;
 
     public User() {
 
     }
 
-    public User(String name, int points) {
+    public User(String name, int points, String colour) {
         this.name = name;
         this.points = points;
+        this.colour = colour;
     }
 
     @Exclude
@@ -35,6 +37,10 @@ public class User {
 
     public int getPoints() {
         return points;
+    }
+
+    public String getColour() {
+        return colour;
     }
 
     @Override

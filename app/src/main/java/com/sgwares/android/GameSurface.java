@@ -1,6 +1,5 @@
 package com.sgwares.android;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -20,7 +19,6 @@ import java.util.List;
 public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 
     private static final String TAG = GameSurface.class.getSimpleName();
-    private GameThread thread;
     private Game game;
     private Pen pen;
     private User player;
@@ -30,7 +28,6 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
         getHolder().addCallback(this);
         setFocusable(true);
         setWillNotDraw(false);
-        thread = new GameThread(getHolder(), this);
         this.game = game;
         this.player = player;
         this.pen = new Pen();
@@ -38,49 +35,32 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        thread.setRunning(true);
-        thread.start();
+
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        boolean retry = true;
-        while (retry) {
-            try {
-                thread.join();
-                retry = false;
-            } catch (InterruptedException e) {
-                // try again shutting down the thread
-            }
-        }
+
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if ((event.getAction() == MotionEvent.ACTION_DOWN) ||
             (event.getAction() == MotionEvent.ACTION_MOVE)) {
-
-            // check if in the lower part of the screen we exit
-            if (event.getY() > getHeight() - 50) {
-                thread.setRunning(false);
-                ((Activity)getContext()).finish();
-            }
-
             pen.addMovement(new Movement(event.getX(), event.getY()));
             invalidate();
-        }
-        if (event.getAction() == MotionEvent.ACTION_UP) {
+        } else if (event.getAction() == MotionEvent.ACTION_UP) {
             Move move = pen.completeMove();
             if ((move != null) && (game.whosMove().equals(player))) {
                 game.addMove(move);
             } else {
                 Log.d(TAG, "Not your turn, it's: " + game.whosMove());
             }
-
             invalidate();
         }
         return true;
