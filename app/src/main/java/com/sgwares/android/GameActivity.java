@@ -7,9 +7,10 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.LinearLayout;
+import android.widget.ListView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -29,6 +30,7 @@ public class GameActivity extends Activity {
     private static final String TAG = GameActivity.class.getSimpleName();
     private FirebaseDatabase mDatabase;
     private DatabaseReference mGame;
+    private List<User> mPossibleParticipants = new ArrayList<>();;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,18 +44,25 @@ public class GameActivity extends Activity {
         mDatabase.getReference("users");
 
         final DatabaseReference usersRef = mDatabase.getReference("users");
-        final LinearLayout participants = (LinearLayout) findViewById(R.id.participants);
+        final ListView listView = (ListView) findViewById(R.id.possible_participants);
+        final ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, mPossibleParticipants);
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                addParticipant(mPossibleParticipants.get(position));
+            }
+        });
+
         final ChildEventListener childEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
                 Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
                 User user = dataSnapshot.getValue(User.class);
-                Log.d(TAG, "New possible participant:" + user);
                 user.setKey(dataSnapshot.getKey());
-                CheckBox possibleParticipant = new CheckBox(getApplicationContext());
-                possibleParticipant.setText(user.getName());
-                possibleParticipant.setTag(user);
-                participants.addView(possibleParticipant);
+                Log.d(TAG, "New possible participant:" + user);
+                mPossibleParticipants.add(user);
+                adapter.notifyDataSetChanged();
             }
 
             @Override
@@ -90,6 +99,10 @@ public class GameActivity extends Activity {
                 createGame();
             }
         });
+    }
+
+    private void addParticipant(User user) {
+        Log.d(TAG, "addParticipant: " + user);
     }
 
     private void createGame() {
