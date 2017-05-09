@@ -3,6 +3,7 @@ package com.sgwares.android;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -103,6 +104,8 @@ public class GameActivity extends Activity {
 
     private void addParticipant(User user) {
         Log.d(TAG, "addParticipant: " + user);
+        Snackbar.make(findViewById(R.id.content_main), user.getName() + " added", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show();
     }
 
     private void createGame() {
