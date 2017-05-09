@@ -32,6 +32,8 @@ public class GameActivity extends Activity {
     private FirebaseDatabase mDatabase;
     private DatabaseReference mGame;
     private List<User> mPossibleParticipants = new ArrayList<>();;
+    private List<User> mParticipants = new ArrayList<>();
+    private ArrayAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,10 +46,9 @@ public class GameActivity extends Activity {
         mDatabase = FirebaseDatabase.getInstance();
         mDatabase.getReference("users");
 
-        final DatabaseReference usersRef = mDatabase.getReference("users");
+        mAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, mPossibleParticipants);
         final ListView listView = (ListView) findViewById(R.id.possible_participants);
-        final ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, mPossibleParticipants);
-        listView.setAdapter(adapter);
+        listView.setAdapter(mAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -58,12 +59,12 @@ public class GameActivity extends Activity {
         final ChildEventListener childEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
-                Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
+                Log.d(TAG, "onChildAdded: " + dataSnapshot.getKey());
                 User user = dataSnapshot.getValue(User.class);
                 user.setKey(dataSnapshot.getKey());
-                Log.d(TAG, "New possible participant:" + user);
+                Log.d(TAG, "New possible participant: " + user);
                 mPossibleParticipants.add(user);
-                adapter.notifyDataSetChanged();
+                mAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -90,34 +91,36 @@ public class GameActivity extends Activity {
                 Log.w(TAG, "onCancelled", databaseError.toException());
             }
         };
+        final DatabaseReference usersRef = mDatabase.getReference("users");
         usersRef.addChildEventListener(childEventListener);
 
         final Button startGame = (Button) findViewById(R.id.start);
         startGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                usersRef.removeEventListener(childEventListener);
-                createGame();
+                if (mParticipants.isEmpty()) {
+                    Snackbar.make(findViewById(R.id.content_main), "No participants", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                } else {
+                    usersRef.removeEventListener(childEventListener);
+                    createGame();
+                }
             }
         });
     }
 
     private void addParticipant(User user) {
         Log.d(TAG, "addParticipant: " + user);
+        mParticipants.add(user);
+        mPossibleParticipants.remove(user);
+        mAdapter.notifyDataSetChanged();
         Snackbar.make(findViewById(R.id.content_main), user.getName() + " added", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show();
     }
 
     private void createGame() {
         final Game game = new Game();
-        final User playerA = new User("Fred", 0, "#fffaac");
-        playerA.setKey("G4wMvhRNMtaoKQok9PPcPmTLZ1w0");
-        final User playerB = new User("Dylan", 0, "#fffaac");
-        playerA.setKey("G4wMvhRNMtaoKQok9PPcPmTLZ1w2");
-        List<User> participants = new ArrayList<>();
-        participants.add(playerA);
-        participants.add(playerB);
-        game.setParticipants(participants);
+        game.setParticipants(mParticipants);
         game.setBackground("#bbbbbb");
 
         mGame = mDatabase.getReference("games").push();
@@ -126,7 +129,7 @@ public class GameActivity extends Activity {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 Log.d(TAG, "Create game onComplete: " + task.isSuccessful());
-                GameSurface surface = new GameSurface(getApplicationContext(), game, playerA);
+                GameSurface surface = new GameSurface(getApplicationContext(), game, mParticipants.get(0));
                 setContentView(surface);
             }
         });
