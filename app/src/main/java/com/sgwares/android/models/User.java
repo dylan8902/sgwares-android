@@ -1,5 +1,6 @@
 package com.sgwares.android.models;
 
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 
@@ -13,6 +14,13 @@ public class User {
 
     public User() {
 
+    }
+
+    public User(FirebaseUser user) {
+        this.name = user.getDisplayName();
+        this.points = 0;
+        this.colour = "#ff0000";
+        this.key = user.getUid();
     }
 
     public User(String name, int points, String colour) {
