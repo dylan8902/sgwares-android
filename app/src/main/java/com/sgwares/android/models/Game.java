@@ -4,7 +4,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Exclude;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.IgnoreExtraProperties;
 
 import java.util.List;
@@ -82,7 +84,10 @@ public class Game {
 
     @Exclude
     public void addMove(Move move) {
-        this.moves.add(move);
+        DatabaseReference movesRef = FirebaseDatabase.getInstance().getReference("moves");
+        DatabaseReference moveRef = movesRef.child(getKey()).push();
+        move.setKey(moveRef.getKey());
+        moveRef.setValue(move);
     }
 
     @Exclude

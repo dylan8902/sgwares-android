@@ -22,6 +22,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.sgwares.android.models.Game;
+import com.sgwares.android.models.Move;
 import com.sgwares.android.models.User;
 
 import java.util.ArrayList;
@@ -31,10 +32,16 @@ public class GameActivity extends Activity {
 
     private static final String TAG = GameActivity.class.getSimpleName();
     private FirebaseDatabase mDatabase;
-    private DatabaseReference mGame;
+    private DatabaseReference mGameRef;
+    private DatabaseReference mMovesRef;
+    private DatabaseReference usersRef;
     private List<User> mPossibleParticipants = new ArrayList<>();;
     private List<User> mParticipants = new ArrayList<>();
     private ArrayAdapter mAdapter;
+    private ChildEventListener mMovesListener;
+    private ChildEventListener mPossibleParticipantListener;
+    private Game mGame;
+    private GameSurface mGameSurface;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +49,9 @@ public class GameActivity extends Activity {
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+        //TODO Check bundle to see if a game key is present
+
         setContentView(R.layout.activity_game);
 
         final FirebaseAuth auth = FirebaseAuth.getInstance();
@@ -58,7 +68,7 @@ public class GameActivity extends Activity {
             }
         });
 
-        final ChildEventListener childEventListener = new ChildEventListener() {
+        mPossibleParticipantListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
                 Log.d(TAG, "onChildAdded: " + dataSnapshot.getKey());
@@ -98,8 +108,8 @@ public class GameActivity extends Activity {
                 Log.w(TAG, "onCancelled", databaseError.toException());
             }
         };
-        final DatabaseReference usersRef = mDatabase.getReference("users");
-        usersRef.addChildEventListener(childEventListener);
+        usersRef = mDatabase.getReference("users");
+        usersRef.addChildEventListener(mPossibleParticipantListener);
 
         final Button startGame = (Button) findViewById(R.id.start);
         startGame.setOnClickListener(new View.OnClickListener() {
@@ -109,7 +119,7 @@ public class GameActivity extends Activity {
                     Snackbar.make(findViewById(R.id.content_main), "No participants", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                 } else {
-                    usersRef.removeEventListener(childEventListener);
+                    usersRef.removeEventListener(mPossibleParticipantListener);
                     createGame();
                 }
             }
@@ -126,20 +136,55 @@ public class GameActivity extends Activity {
     }
 
     private void createGame() {
-        final Game game = new Game();
-        game.setParticipants(mParticipants);
-        game.setBackground("#bbbbbb");
-
-        mGame = mDatabase.getReference("games").push();
-        Log.d(TAG, "Created game key: " + mGame.getKey());
-        mGame.setValue(game).addOnCompleteListener(new OnCompleteListener<Void>() {
+        mGameRef = mDatabase.getReference("games").push();
+        Log.d(TAG, "Created game key: " + mGameRef.getKey());
+        mGame = new Game();
+        mGame.setParticipants(mParticipants);
+        mGame.setBackground("#bbbbbb");
+        mGame.setKey(mGameRef.getKey());
+        mGameRef.setValue(mGame).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 Log.d(TAG, "Create game onComplete: " + task.isSuccessful());
-                GameSurface surface = new GameSurface(getApplicationContext(), game, mParticipants.get(0));
-                setContentView(surface);
+                mGameSurface = new GameSurface(getApplicationContext(), mGame, mParticipants.get(0));
+                setContentView(mGameSurface);
+                setupMoveHandler();
             }
         });
+    }
+
+    private void setupMoveHandler() {
+        mMovesRef = mDatabase.getReference("moves").child(mGameRef.getKey());
+        mMovesListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
+                Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
+                Move move = dataSnapshot.getValue(Move.class);
+                mGame.getMoves().add(move);
+                mGameSurface.invalidate();
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
+                Log.d(TAG, "onChildChanged:" + dataSnapshot.getKey());
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                Log.d(TAG, "onChildRemoved:" + dataSnapshot.getKey());
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
+                Log.d(TAG, "onChildMoved:" + dataSnapshot.getKey());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w(TAG, "onCancelled", databaseError.toException());
+            }
+        };
+        mMovesRef.addChildEventListener(mMovesListener);
     }
 
     @Override
@@ -147,6 +192,18 @@ public class GameActivity extends Activity {
         Log.d(TAG, "onBackPressed: end game");
         //TODO confirmation box, option to end game, show final score
         finish();
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.d(TAG, "onDestroy: ended game");
+        if ((mMovesRef != null) && (mMovesListener != null)) {
+            mMovesRef.removeEventListener(mMovesListener);
+        }
+        if ((usersRef != null) && (mPossibleParticipantListener != null)) {
+            usersRef.removeEventListener(mPossibleParticipantListener);
+        }
+        super.onDestroy();
     }
 
 }
