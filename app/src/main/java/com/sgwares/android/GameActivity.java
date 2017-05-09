@@ -15,6 +15,7 @@ import android.widget.ListView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -43,6 +44,7 @@ public class GameActivity extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_game);
 
+        final FirebaseAuth auth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance();
         mDatabase.getReference("users");
 
@@ -62,9 +64,14 @@ public class GameActivity extends Activity {
                 Log.d(TAG, "onChildAdded: " + dataSnapshot.getKey());
                 User user = dataSnapshot.getValue(User.class);
                 user.setKey(dataSnapshot.getKey());
-                Log.d(TAG, "New possible participant: " + user);
-                mPossibleParticipants.add(user);
-                mAdapter.notifyDataSetChanged();
+                if (user.getKey().equals(auth.getCurrentUser().getUid())) {
+                    Log.d(TAG, "Current user: " + user);
+                    mParticipants.add(user);
+                } else {
+                    Log.d(TAG, "New possible participant: " + user);
+                    mPossibleParticipants.add(user);
+                    mAdapter.notifyDataSetChanged();
+                }
             }
 
             @Override
