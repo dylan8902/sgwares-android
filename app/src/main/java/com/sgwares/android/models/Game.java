@@ -3,6 +3,8 @@ package com.sgwares.android.models;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
+import android.util.Log;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Exclude;
@@ -16,6 +18,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class Game {
 
     public static final int SPACING = 200;
+    private static final String TAG = Game.class.getSimpleName();
     private static final int DOT_SIZE = 6;
 
     private String key;
@@ -114,6 +117,24 @@ public class Game {
         // Draw moves
         for (Move move : getMoves()) {
             move.draw(canvas);
+            if (isWinningMove(move)) {
+                Log.d(TAG, "This is a winning move, filling it up");
+                Paint winningPaint = new Paint();
+                winningPaint.setColor(Color.RED);
+                winningPaint.setStyle(Paint.Style.FILL);
+                Rect rect = new Rect((move.getX() * SPACING),
+                        (move.getY() * SPACING),
+                        (move.getX() * SPACING) + SPACING,
+                        (move.getY() * SPACING) + SPACING);
+                canvas.drawRect(rect, winningPaint);
+            }
         }
+
     }
+
+    private boolean isWinningMove(Move move) {
+        //TODO check if this move is winning
+        return true;
+    }
+
 }

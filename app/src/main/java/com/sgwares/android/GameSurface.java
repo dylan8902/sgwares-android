@@ -68,6 +68,7 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        Log.d(TAG, "onDraw");
         game.draw(canvas);
         pen.draw(canvas);
     }
