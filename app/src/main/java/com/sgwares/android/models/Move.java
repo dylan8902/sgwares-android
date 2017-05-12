@@ -9,6 +9,8 @@ import com.google.firebase.database.IgnoreExtraProperties;
 
 @IgnoreExtraProperties
 public class Move {
+    public static final int HORIZONTAL = 0;
+    public static final int VERTICAL = 1;
     private String key;
     // The start co-ordinates of the move
     private int x;
@@ -82,7 +84,7 @@ public class Move {
         int endX = x * Game.SPACING;
         int endY = y * Game.SPACING;
 
-        if (direction == 0) {
+        if (direction == HORIZONTAL) {
             endX = endX + Game.SPACING;
         } else {
             endY = endY + Game.SPACING;

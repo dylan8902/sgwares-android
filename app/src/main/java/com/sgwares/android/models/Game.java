@@ -11,6 +11,7 @@ import com.google.firebase.database.Exclude;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.IgnoreExtraProperties;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -120,7 +121,7 @@ public class Game {
             if (isWinningMove(move)) {
                 Log.d(TAG, "This is a winning move, filling it up");
                 Paint winningPaint = new Paint();
-                winningPaint.setColor(Color.RED);
+                winningPaint.setColor(Color.parseColor(move.getUser().getColour()));
                 winningPaint.setStyle(Paint.Style.FILL);
                 Rect rect = new Rect((move.getX() * SPACING),
                         (move.getY() * SPACING),
@@ -132,8 +133,25 @@ public class Game {
 
     }
 
+    //   -
+    //  | |
+    // -.-
+    //| | |
+    // - -
+    // Three potential squares this move may complete
     private boolean isWinningMove(Move move) {
-        //TODO check if this move is winning
+        if (move.getDirection() == Move.HORIZONTAL) {
+            List<Move> requiredMoves = new ArrayList<>();
+            requiredMoves.add(new Move(move.getX(), move.getY() + 1, Move.HORIZONTAL, null));
+            requiredMoves.add(new Move(move.getX(), move.getY(), Move.VERTICAL, null));
+            requiredMoves.add(new Move(move.getX() + 1, move.getY(), Move.VERTICAL, null));
+            for (Move m : moves) {
+                requiredMoves.remove(m);
+                if (requiredMoves.isEmpty()) {
+                    return true;
+                }
+            }
+        }
         return true;
     }
 
