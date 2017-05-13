@@ -29,7 +29,9 @@ import com.sgwares.android.models.Move;
 import com.sgwares.android.models.User;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GameActivity extends Activity {
 
@@ -40,7 +42,7 @@ public class GameActivity extends Activity {
     private DatabaseReference mUsersRef;
     private DatabaseReference mParticipantsRef;
     private List<User> mPossibleParticipants = new ArrayList<>();;
-    private List<User> mParticipants = new ArrayList<>();
+    private Map<User, TextView> mParticipants = new LinkedHashMap<>();
     private ArrayAdapter mAdapter;
     private ChildEventListener mMovesListener;
     private ChildEventListener mPossibleParticipantListener;
@@ -231,21 +233,25 @@ public class GameActivity extends Activity {
             public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
                 Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
                 User user = dataSnapshot.getValue(User.class);
-                mParticipants.add(user);
                 TextView tv = new TextView(getApplicationContext());
-                tv.setText(user.getName());
+                tv.setText(user.toString());
+                mParticipants.put(user, tv);
                 mView.addView(tv);
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
                 Log.d(TAG, "onChildChanged:" + dataSnapshot.getKey());
+                User user = dataSnapshot.getValue(User.class);
                 // TODO participant changed, update names, scores, colours etc
+                mParticipants.get(user).setText(user.toString());
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
                 Log.d(TAG, "onChildRemoved:" + dataSnapshot.getKey());
+                User user = dataSnapshot.getValue(User.class);
+                mView.removeView(mParticipants.remove(user));
             }
 
             @Override
