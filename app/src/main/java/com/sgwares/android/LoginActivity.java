@@ -13,6 +13,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.sgwares.android.models.User;
 
 public class LoginActivity extends AppCompatActivity {
@@ -52,6 +53,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void processSignIn() {
         User user = new User(mAuth.getCurrentUser());
+        FirebaseMessaging.getInstance().subscribeToTopic(user.getKey());
         DatabaseReference newUser = usersRef.child(user.getKey());
         newUser.setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
