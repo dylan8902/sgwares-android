@@ -55,7 +55,13 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setCheckedItem(R.id.nav_games);
         navigationView.setNavigationItemSelectedListener(this);
+
+        // TODO add games fragment
+        getFragmentManager().beginTransaction()
+                .replace(R.id.content_main, new LeaderboardFragment())
+                .commit();
     }
 
     @Override
@@ -94,11 +100,7 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.nav_new_game) {
-            //TODO Show current open game boards, option to search through them or create a new one
-            Intent gameActivity = new Intent(this, GameActivity.class);
-            startActivity(gameActivity);
-        } else if (id == R.id.nav_your_games) {
+        if (id == R.id.nav_games) {
             //TODO show a history of games current and old
         } else if (id == R.id.nav_leaderboard) {
             getFragmentManager().beginTransaction()
