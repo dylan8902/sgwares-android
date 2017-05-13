@@ -13,6 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -22,6 +23,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.sgwares.android.models.Game;
 import com.sgwares.android.models.Move;
 import com.sgwares.android.models.User;
@@ -45,6 +47,8 @@ public class GameActivity extends Activity {
     private ChildEventListener mParticipantsListener;
     private Game mGame;
     private GameSurface mGameSurface;
+    private FrameLayout mView;
+    private User mUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,13 +57,26 @@ public class GameActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        //TODO Check bundle to see if a game key is present
+        // TODO Check bundle to see if a game key is present
 
         setContentView(R.layout.activity_game_setup);
 
+        // Get user and create game
         final FirebaseAuth auth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance();
-        mDatabase.getReference("users");
+        mUsersRef = mDatabase.getReference("users");
+        mUsersRef.child(auth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mUser = dataSnapshot.getValue(User.class);
+                createGame();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d(TAG, "onCancelled: " + databaseError.getMessage());
+            }
+        });
 
         mAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, mPossibleParticipants);
         final ListView listView = (ListView) findViewById(R.id.possible_participants);
@@ -67,6 +84,7 @@ public class GameActivity extends Activity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                //TODO invite user to game
                 addParticipant(mPossibleParticipants.get(position));
             }
         });
@@ -77,10 +95,7 @@ public class GameActivity extends Activity {
                 Log.d(TAG, "onChildAdded: " + dataSnapshot.getKey());
                 User user = dataSnapshot.getValue(User.class);
                 user.setKey(dataSnapshot.getKey());
-                if (user.getKey().equals(auth.getCurrentUser().getUid())) {
-                    Log.d(TAG, "Current user: " + user);
-                    mParticipants.add(user);
-                } else {
+                if (!user.getKey().equals(auth.getCurrentUser().getUid())) {
                     Log.d(TAG, "New possible participant: " + user);
                     mPossibleParticipants.add(user);
                     mAdapter.notifyDataSetChanged();
@@ -111,54 +126,67 @@ public class GameActivity extends Activity {
                 Log.w(TAG, "onCancelled", databaseError.toException());
             }
         };
-        mUsersRef = mDatabase.getReference("users");
         mUsersRef.addChildEventListener(mPossibleParticipantListener);
 
         final Button startGame = (Button) findViewById(R.id.start);
         startGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mParticipants.isEmpty()) {
-                    Snackbar.make(findViewById(R.id.content_main), "No participants", Snackbar.LENGTH_LONG)
+                if (mGame == null) {
+                    Snackbar.make(findViewById(R.id.content_main), "Game not setup yet", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                 } else {
                     mUsersRef.removeEventListener(mPossibleParticipantListener);
-                    createGame();
+                    startGame();
                 }
             }
         });
     }
 
-    private void addParticipant(User user) {
-        Log.d(TAG, "addParticipant: " + user);
-        mParticipants.add(user);
-        mPossibleParticipants.remove(user);
-        mAdapter.notifyDataSetChanged();
-        Snackbar.make(findViewById(R.id.content_main), user.getName() + " added", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show();
-    }
-
+    /**
+     * Create a new game and add current user as participant
+     */
     private void createGame() {
         mGameRef = mDatabase.getReference("games").push();
         Log.d(TAG, "Created game key: " + mGameRef.getKey());
         mGame = new Game();
-        mGame.setParticipants(mParticipants);
+        List<User> initialParticipants = new ArrayList<>();
+        initialParticipants.add(mUser);
+        mGame.setParticipants(initialParticipants);
         mGame.setBackground("#bbbbbb");
         mGame.setKey(mGameRef.getKey());
         mGameRef.setValue(mGame).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 Log.d(TAG, "Create game onComplete: " + task.isSuccessful());
-                mGameSurface = new GameSurface(getApplicationContext(), mGame, mParticipants.get(0));
-                setContentView(R.layout.activity_game);
-                FrameLayout view = (FrameLayout) findViewById(R.id.content_main);
-                view.addView(mGameSurface);
-                setupMoveHandler();
-                setupParticipantHandler();
             }
         });
     }
 
+    // TODO chnage to invite partipant
+    private void addParticipant(User user) {
+        Log.d(TAG, "addParticipant: " + user);
+        mPossibleParticipants.remove(user);
+        mAdapter.notifyDataSetChanged();
+        Snackbar.make(findViewById(R.id.content_main), user.getName() + " added", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show();
+    }
+
+    /**
+     * Start the game, show game surface and setup handlers
+     */
+    private void startGame() {
+        mGameSurface = new GameSurface(getApplicationContext(), mGame, mUser);
+        setContentView(R.layout.activity_game);
+        mView = (FrameLayout) findViewById(R.id.content_main);
+        mView.addView(mGameSurface);
+        setupMoveHandler();
+        setupParticipantHandler();
+    }
+
+    /**
+     * Listen for new moves and trigger redraw of the canvas
+     */
     private void setupMoveHandler() {
         mMovesRef = mDatabase.getReference("moves").child(mGameRef.getKey());
         mMovesListener = new ChildEventListener() {
@@ -193,19 +221,26 @@ public class GameActivity extends Activity {
         mMovesRef.addChildEventListener(mMovesListener);
     }
 
+    /**
+     * Add new participants to game and add score
+     */
     private void setupParticipantHandler() {
         mParticipantsRef = mGameRef.child("participants");
         mParticipantsListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
                 Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
-                //TODO new participant added to game
+                User user = dataSnapshot.getValue(User.class);
+                mParticipants.add(user);
+                TextView tv = new TextView(getApplicationContext());
+                tv.setText(user.getName());
+                mView.addView(tv);
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
                 Log.d(TAG, "onChildChanged:" + dataSnapshot.getKey());
-                //TODO participant changed, update names, scores, colours etc
+                // TODO participant changed, update names, scores, colours etc
             }
 
             @Override
@@ -229,7 +264,7 @@ public class GameActivity extends Activity {
     @Override
     public void onBackPressed() {
         Log.d(TAG, "onBackPressed: end game");
-        //TODO confirmation box, option to end game, show final score
+        // TODO confirmation box, option to end game, show final score
         finish();
     }
 
