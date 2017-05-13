@@ -11,6 +11,7 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ListView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -34,12 +35,14 @@ public class GameActivity extends Activity {
     private FirebaseDatabase mDatabase;
     private DatabaseReference mGameRef;
     private DatabaseReference mMovesRef;
-    private DatabaseReference usersRef;
+    private DatabaseReference mUsersRef;
+    private DatabaseReference mParticipantsRef;
     private List<User> mPossibleParticipants = new ArrayList<>();;
     private List<User> mParticipants = new ArrayList<>();
     private ArrayAdapter mAdapter;
     private ChildEventListener mMovesListener;
     private ChildEventListener mPossibleParticipantListener;
+    private ChildEventListener mParticipantsListener;
     private Game mGame;
     private GameSurface mGameSurface;
 
@@ -52,7 +55,7 @@ public class GameActivity extends Activity {
 
         //TODO Check bundle to see if a game key is present
 
-        setContentView(R.layout.activity_game);
+        setContentView(R.layout.activity_game_setup);
 
         final FirebaseAuth auth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance();
@@ -108,8 +111,8 @@ public class GameActivity extends Activity {
                 Log.w(TAG, "onCancelled", databaseError.toException());
             }
         };
-        usersRef = mDatabase.getReference("users");
-        usersRef.addChildEventListener(mPossibleParticipantListener);
+        mUsersRef = mDatabase.getReference("users");
+        mUsersRef.addChildEventListener(mPossibleParticipantListener);
 
         final Button startGame = (Button) findViewById(R.id.start);
         startGame.setOnClickListener(new View.OnClickListener() {
@@ -119,7 +122,7 @@ public class GameActivity extends Activity {
                     Snackbar.make(findViewById(R.id.content_main), "No participants", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                 } else {
-                    usersRef.removeEventListener(mPossibleParticipantListener);
+                    mUsersRef.removeEventListener(mPossibleParticipantListener);
                     createGame();
                 }
             }
@@ -147,8 +150,11 @@ public class GameActivity extends Activity {
             public void onComplete(@NonNull Task<Void> task) {
                 Log.d(TAG, "Create game onComplete: " + task.isSuccessful());
                 mGameSurface = new GameSurface(getApplicationContext(), mGame, mParticipants.get(0));
-                setContentView(mGameSurface);
+                setContentView(R.layout.activity_game);
+                FrameLayout view = (FrameLayout) findViewById(R.id.content_main);
+                view.addView(mGameSurface);
                 setupMoveHandler();
+                setupParticipantHandler();
             }
         });
     }
@@ -187,6 +193,39 @@ public class GameActivity extends Activity {
         mMovesRef.addChildEventListener(mMovesListener);
     }
 
+    private void setupParticipantHandler() {
+        mParticipantsRef = mGameRef.child("participants");
+        mParticipantsListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
+                Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
+                //TODO new participant added to game
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
+                Log.d(TAG, "onChildChanged:" + dataSnapshot.getKey());
+                //TODO participant changed, update names, scores, colours etc
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                Log.d(TAG, "onChildRemoved:" + dataSnapshot.getKey());
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
+                Log.d(TAG, "onChildMoved:" + dataSnapshot.getKey());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w(TAG, "onCancelled", databaseError.toException());
+            }
+        };
+        mParticipantsRef.addChildEventListener(mParticipantsListener);
+    }
+
     @Override
     public void onBackPressed() {
         Log.d(TAG, "onBackPressed: end game");
@@ -200,8 +239,11 @@ public class GameActivity extends Activity {
         if ((mMovesRef != null) && (mMovesListener != null)) {
             mMovesRef.removeEventListener(mMovesListener);
         }
-        if ((usersRef != null) && (mPossibleParticipantListener != null)) {
-            usersRef.removeEventListener(mPossibleParticipantListener);
+        if ((mUsersRef != null) && (mPossibleParticipantListener != null)) {
+            mUsersRef.removeEventListener(mPossibleParticipantListener);
+        }
+        if ((mParticipantsRef != null) && (mParticipantsListener != null)) {
+            mParticipantsRef.removeEventListener(mParticipantsListener);
         }
         super.onDestroy();
     }

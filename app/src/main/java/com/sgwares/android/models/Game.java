@@ -93,6 +93,7 @@ public class Game {
         DatabaseReference moveRef = movesRef.child(getKey()).push();
         move.setKey(moveRef.getKey());
         if (isWinningMove(move)) {
+            //TODO Move to awardPoints and only keep game points on /participants and global points on /users
             User user = move.getUser();
             int points = user.getPoints() + 1;
             Log.d(TAG, "Winning move - awarding " + points + " points to " + user);
