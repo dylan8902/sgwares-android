@@ -24,6 +24,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.RemoteMessage;
 import com.sgwares.android.models.Game;
 import com.sgwares.android.models.Move;
 import com.sgwares.android.models.User;
@@ -32,6 +34,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class GameActivity extends Activity {
 
@@ -87,7 +90,7 @@ public class GameActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //TODO invite user to game
-                addParticipant(mPossibleParticipants.get(position));
+                inviteParticipant(mPossibleParticipants.get(position));
             }
         });
 
@@ -157,11 +160,16 @@ public class GameActivity extends Activity {
     }
 
     // TODO chnage to invite partipant
-    private void addParticipant(User user) {
-        Log.d(TAG, "addParticipant: " + user);
+    private void inviteParticipant(User user) {
+        Log.d(TAG, "inviteParticipant: " + user);
+        RemoteMessage message = new RemoteMessage.Builder("/topics/" + user.getKey())
+                .setMessageId(UUID.randomUUID().toString())
+                .addData("message", "Hello")
+                .build();
+        FirebaseMessaging.getInstance().send(message);
         mPossibleParticipants.remove(user);
         mAdapter.notifyDataSetChanged();
-        Snackbar.make(findViewById(R.id.content_main), user.getName() + " added", Snackbar.LENGTH_LONG)
+        Snackbar.make(findViewById(R.id.content_main), user.getName() + " invited", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show();
     }
 
