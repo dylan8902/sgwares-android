@@ -1,8 +1,8 @@
 package com.sgwares.android;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.View;
@@ -12,11 +12,11 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -49,7 +49,7 @@ public class GameActivity extends Activity {
     private ChildEventListener mParticipantsListener;
     private Game mGame;
     private GameSurface mGameSurface;
-    private FrameLayout mView;
+    private LinearLayout mScoreboard;
     private User mUser;
 
     @Override
@@ -129,20 +129,6 @@ public class GameActivity extends Activity {
             }
         };
         mUsersRef.addChildEventListener(mPossibleParticipantListener);
-
-        final Button startGame = (Button) findViewById(R.id.start);
-        startGame.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mGame == null) {
-                    Snackbar.make(findViewById(R.id.content_main), "Game not setup yet", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
-                } else {
-                    mUsersRef.removeEventListener(mPossibleParticipantListener);
-                    startGame();
-                }
-            }
-        });
     }
 
     /**
@@ -157,10 +143,15 @@ public class GameActivity extends Activity {
         mGame.setParticipants(initialParticipants);
         mGame.setBackground("#bbbbbb");
         mGame.setKey(mGameRef.getKey());
-        mGameRef.setValue(mGame).addOnCompleteListener(new OnCompleteListener<Void>() {
+        mGameRef.setValue(mGame);
+
+        final Button startGame = (Button) findViewById(R.id.start);
+        startGame.setVisibility(View.VISIBLE);
+        startGame.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                Log.d(TAG, "Create game onComplete: " + task.isSuccessful());
+            public void onClick(View v) {
+                mUsersRef.removeEventListener(mPossibleParticipantListener);
+                startGame();
             }
         });
     }
@@ -180,8 +171,9 @@ public class GameActivity extends Activity {
     private void startGame() {
         mGameSurface = new GameSurface(getApplicationContext(), mGame, mUser);
         setContentView(R.layout.activity_game);
-        mView = (FrameLayout) findViewById(R.id.content_main);
-        mView.addView(mGameSurface);
+        mScoreboard = (LinearLayout) findViewById(R.id.scoreboard);
+        RelativeLayout view = (RelativeLayout) findViewById(R.id.content_main);
+        view.addView(mGameSurface, 0);
         setupMoveHandler();
         setupParticipantHandler();
     }
@@ -235,23 +227,28 @@ public class GameActivity extends Activity {
                 User user = dataSnapshot.getValue(User.class);
                 TextView tv = new TextView(getApplicationContext());
                 tv.setText(user.toString());
+                tv.setTextColor(Color.parseColor(user.getColour()));
+                tv.setLayoutParams(new FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.WRAP_CONTENT,
+                        FrameLayout.LayoutParams.WRAP_CONTENT));
                 mParticipants.put(user, tv);
-                mView.addView(tv);
+                mScoreboard.addView(tv);
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
                 Log.d(TAG, "onChildChanged:" + dataSnapshot.getKey());
                 User user = dataSnapshot.getValue(User.class);
-                // TODO participant changed, update names, scores, colours etc
-                mParticipants.get(user).setText(user.toString());
+                TextView tv = mParticipants.get(user);
+                tv.setText(user.toString());
+                tv.setTextColor(Color.parseColor(user.getColour()));
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
                 Log.d(TAG, "onChildRemoved:" + dataSnapshot.getKey());
                 User user = dataSnapshot.getValue(User.class);
-                mView.removeView(mParticipants.remove(user));
+                mScoreboard.removeView(mParticipants.remove(user));
             }
 
             @Override
