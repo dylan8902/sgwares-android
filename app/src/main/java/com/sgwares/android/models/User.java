@@ -1,7 +1,6 @@
 package com.sgwares.android.models;
 
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 
 @IgnoreExtraProperties
@@ -29,12 +28,10 @@ public class User {
         this.colour = colour;
     }
 
-    @Exclude
     public String getKey() {
         return key;
     }
 
-    @Exclude
     public void setKey(String key) {
         this.key = key;
     }

@@ -93,4 +93,24 @@ public class Move {
         canvas.drawLine(startX, startY, endX, endY, whitePaint);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Move move = (Move) o;
+
+        if (getX() != move.getX()) return false;
+        if (getY() != move.getY()) return false;
+        return getDirection() == move.getDirection();
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getX();
+        result = 31 * result + getY();
+        result = 31 * result + getDirection();
+        return result;
+    }
 }

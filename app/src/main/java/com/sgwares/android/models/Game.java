@@ -88,9 +88,25 @@ public class Game {
 
     @Exclude
     public void addMove(Move move) {
-        DatabaseReference movesRef = FirebaseDatabase.getInstance().getReference("moves");
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference movesRef = database.getReference("moves");
         DatabaseReference moveRef = movesRef.child(getKey()).push();
         move.setKey(moveRef.getKey());
+        if (isWinningMove(move)) {
+            User user = move.getUser();
+            int points = user.getPoints() + 1;
+            Log.d(TAG, "Winning move - awarding " + points + " points to " + user);
+            // Update /moves
+            user.setPoints(points);
+            // Update /users
+            DatabaseReference userRef = database.getReference("users").child(user.getKey());
+            userRef.setValue(user);
+            // Update /participants
+            DatabaseReference participantsRef = database.getReference("games").child(getKey()).child("participants");
+            getParticipants().set(getParticipants().indexOf(user), user);
+            participantsRef.setValue(getParticipants());
+
+        }
         moveRef.setValue(move);
     }
 
@@ -116,13 +132,13 @@ public class Game {
         }
 
         // Draw moves
+        Paint winningPaint = new Paint();
+        winningPaint.setStyle(Paint.Style.FILL);
         for (Move move : getMoves()) {
             move.draw(canvas);
+            // Draw the users box if this is a winning move
             if (isWinningMove(move)) {
-                Log.d(TAG, "This is a winning move, filling it up");
-                Paint winningPaint = new Paint();
                 winningPaint.setColor(Color.parseColor(move.getUser().getColour()));
-                winningPaint.setStyle(Paint.Style.FILL);
                 Rect rect = new Rect((move.getX() * SPACING),
                         (move.getY() * SPACING),
                         (move.getX() * SPACING) + SPACING,
@@ -133,12 +149,6 @@ public class Game {
 
     }
 
-    //   -
-    //  | |
-    // -.-
-    //| | |
-    // - -
-    // Three potential squares this move may complete
     private boolean isWinningMove(Move move) {
         if (move.getDirection() == Move.HORIZONTAL) {
             List<Move> requiredMoves = new ArrayList<>();
@@ -151,8 +161,19 @@ public class Game {
                     return true;
                 }
             }
+        } else if (move.getDirection() == Move.VERTICAL) {
+            List<Move> requiredMoves = new ArrayList<>();
+            requiredMoves.add(new Move(move.getX() + 1, move.getY(), Move.VERTICAL, null));
+            requiredMoves.add(new Move(move.getX(), move.getY(), Move.HORIZONTAL, null));
+            requiredMoves.add(new Move(move.getX(), move.getY() + 1, Move.HORIZONTAL, null));
+            for (Move m : getMoves()) {
+                requiredMoves.remove(m);
+                if (requiredMoves.isEmpty()) {
+                    return true;
+                }
+            }
         }
-        return true;
+        return false;
     }
 
 }
