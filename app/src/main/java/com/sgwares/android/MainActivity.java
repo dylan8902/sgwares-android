@@ -127,8 +127,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onListFragmentInteraction(Game item) {
-        Log.d(TAG, "Item clicked: " + item);
+    public void onListFragmentInteraction(Game game) {
+        Log.d(TAG, "onListFragmentInteraction Game clicked: " + game);
+        Intent gameActivity = new Intent(getApplicationContext(), GameActivity.class);
+        gameActivity.putExtra(GameActivity.GAME_KEY, game.getKey());
+        startActivity(gameActivity);
     }
 
 }
