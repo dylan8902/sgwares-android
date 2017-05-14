@@ -15,13 +15,16 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.sgwares.android.fragments.GamesFragment;
 import com.sgwares.android.fragments.LeaderboardFragment;
 import com.sgwares.android.fragments.SettingsFragment;
+import com.sgwares.android.models.Game;
 import com.sgwares.android.models.User;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-        LeaderboardFragment.OnListFragmentInteractionListener {
+        LeaderboardFragment.OnListFragmentInteractionListener,
+        GamesFragment.OnListFragmentInteractionListener {
 
     private static final String TAG = "MainActivity";
 
@@ -58,9 +61,8 @@ public class MainActivity extends AppCompatActivity
         navigationView.setCheckedItem(R.id.nav_games);
         navigationView.setNavigationItemSelectedListener(this);
 
-        // TODO add games fragment
         getFragmentManager().beginTransaction()
-                .replace(R.id.content_main, new LeaderboardFragment())
+                .replace(R.id.content_main, new GamesFragment())
                 .commit();
     }
 
@@ -101,7 +103,9 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_games) {
-            //TODO show a history of games current and old
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.content_main, new GamesFragment())
+                    .commit();
         } else if (id == R.id.nav_leaderboard) {
             getFragmentManager().beginTransaction()
                     .replace(R.id.content_main, new LeaderboardFragment())
@@ -119,6 +123,11 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onListFragmentInteraction(User item) {
+        Log.d(TAG, "Item clicked: " + item);
+    }
+
+    @Override
+    public void onListFragmentInteraction(Game item) {
         Log.d(TAG, "Item clicked: " + item);
     }
 
