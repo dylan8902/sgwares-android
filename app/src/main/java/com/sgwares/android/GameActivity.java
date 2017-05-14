@@ -162,9 +162,9 @@ public class GameActivity extends Activity {
     // TODO chnage to invite partipant
     private void inviteParticipant(User user) {
         Log.d(TAG, "inviteParticipant: " + user);
-        RemoteMessage message = new RemoteMessage.Builder("/topics/" + user.getKey())
+        RemoteMessage message = new RemoteMessage.Builder(user.getToken())
                 .setMessageId(UUID.randomUUID().toString())
-                .addData("message", "Hello")
+                .addData("body", "Hello")
                 .build();
         FirebaseMessaging.getInstance().send(message);
         mPossibleParticipants.remove(user);

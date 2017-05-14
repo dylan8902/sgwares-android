@@ -10,6 +10,7 @@ public class User {
     private String name;
     private int points;
     private String colour;
+    private String token;
 
     public User() {
 
@@ -58,6 +59,14 @@ public class User {
 
     public void setColour(String colour) {
         this.colour = colour;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 
     @Override
