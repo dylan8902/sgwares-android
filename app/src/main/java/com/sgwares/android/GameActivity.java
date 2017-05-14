@@ -80,7 +80,7 @@ public class GameActivity extends Activity {
                 if (mGameKey == null) {
                     createGame();
                 } else {
-                    loadGame();
+                    joinGame();
                 }
             }
 
@@ -107,14 +107,18 @@ public class GameActivity extends Activity {
     }
 
     /**
-     * Load an existing game and start
+     * Join an existing game and start
      */
-    private void loadGame() {
-        mDatabase.getReference("games").child(mGameKey).addListenerForSingleValueEvent(new ValueEventListener() {
+    private void joinGame() {
+        mGameRef = mDatabase.getReference("games").child(mGameKey);
+        mGameRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mGame = dataSnapshot.getValue(Game.class);
+                mGame.setKey(dataSnapshot.getKey());
                 Log.d(TAG, "onDataChange: " + mGame);
+                DatabaseReference newParticipant = mGameRef.child("participants").child("1");
+                newParticipant.setValue(mUser);
                 startGame();
             }
 
