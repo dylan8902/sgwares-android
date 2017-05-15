@@ -89,10 +89,12 @@ public class Game {
         return createdAt;
     }
 
+    @Exclude
     public String getDateTimeCreatedAt() {
         Date date = new Date((long) getCreatedAt());
         return new SimpleDateFormat("dd/MMM/yyyy").format(date);
     }
+
     @Exclude
     public void addMove(Move move) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
