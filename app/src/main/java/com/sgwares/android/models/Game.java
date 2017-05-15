@@ -24,14 +24,12 @@ public class Game {
 
     private String key;
     private List<Move> moves;
-    private List<User> participants;
     private boolean finished;
     private boolean open;
     private String background;
 
     public Game() {
         this.moves = new CopyOnWriteArrayList<>();
-        this.participants = new CopyOnWriteArrayList<>();
     }
 
     @Exclude
@@ -52,14 +50,6 @@ public class Game {
     @Exclude
     public void setMoves(List<Move> moves) {
         this.moves = moves;
-    }
-
-    public List<User> getParticipants() {
-        return participants;
-    }
-
-    public void setParticipants(List<User> participants) {
-        this.participants = participants;
     }
 
     public boolean isFinished() {
@@ -89,32 +79,23 @@ public class Game {
     @Exclude
     public void addMove(Move move) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference movesRef = database.getReference("moves");
-        DatabaseReference moveRef = movesRef.child(getKey()).push();
+        DatabaseReference movesRef = database.getReference("moves").child(getKey());
+        DatabaseReference moveRef = movesRef.push();
         move.setKey(moveRef.getKey());
         if (isWinningMove(move)) {
             //TODO Move to awardPoints and only keep game points on /participants and global points on /users
             User user = move.getUser();
             int points = user.getPoints() + 1;
-            Log.d(TAG, "Winning move - awarding " + points + " points to " + user);
-            // Update /moves
             user.setPoints(points);
+            Log.d(TAG, "Winning move - awarding " + points + " points to " + user);
             // Update /users
             DatabaseReference userRef = database.getReference("users").child(user.getKey());
             userRef.setValue(user);
             // Update /participants
-            DatabaseReference participantsRef = database.getReference("games").child(getKey()).child("participants");
-            getParticipants().set(getParticipants().indexOf(user), user);
-            participantsRef.setValue(getParticipants());
-
+            DatabaseReference ref = database.getReference("participants").child(getKey()).child(user.getKey()).child("points");
+            ref.setValue(points);
         }
         moveRef.setValue(move);
-    }
-
-    @Exclude
-    public User whosMove() {
-        //TODO calculate which participant's move is next based on number of moves
-        return getParticipants().get(0);
     }
 
     @Exclude

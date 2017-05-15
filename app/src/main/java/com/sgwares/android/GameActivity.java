@@ -111,14 +111,14 @@ public class GameActivity extends Activity {
      */
     private void joinGame() {
         mGameRef = mDatabase.getReference("games").child(mGameKey);
+        mParticipantsRef = mDatabase.getReference("participants").child(mGameKey);
         mGameRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mGame = dataSnapshot.getValue(Game.class);
                 mGame.setKey(dataSnapshot.getKey());
                 Log.d(TAG, "onDataChange: " + mGame);
-                DatabaseReference newParticipant = mGameRef.child("participants").child("1");
-                newParticipant.setValue(mUser);
+                mParticipantsRef.child(mUser.getKey()).setValue(mUser);
                 startGame();
             }
 
@@ -136,12 +136,11 @@ public class GameActivity extends Activity {
         mGameRef = mDatabase.getReference("games").push();
         Log.d(TAG, "Created game key: " + mGameRef.getKey());
         mGame = new Game();
-        List<User> initialParticipants = new ArrayList<>();
-        initialParticipants.add(mUser);
-        mGame.setParticipants(initialParticipants);
-        mGame.setBackground("#bbbbbb");
         mGame.setKey(mGameRef.getKey());
+        mGame.setBackground("#bbbbbb");
         mGameRef.setValue(mGame);
+        mParticipantsRef = mDatabase.getReference("participants").child(mGameRef.getKey());
+        mParticipantsRef.child(mUser.getKey()).setValue(mUser);
 
         final Button startGame = (Button) findViewById(R.id.start);
         startGame.setVisibility(View.VISIBLE);
@@ -270,7 +269,6 @@ public class GameActivity extends Activity {
      * Add new participants to game and add score
      */
     private void setupParticipantHandler() {
-        mParticipantsRef = mGameRef.child("participants");
         mParticipantsListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
