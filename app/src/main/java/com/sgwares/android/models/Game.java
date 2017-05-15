@@ -12,7 +12,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.firebase.database.ServerValue;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -87,6 +89,10 @@ public class Game {
         return createdAt;
     }
 
+    public String getDateTimeCreatedAt() {
+        Date date = new Date((long) getCreatedAt());
+        return new SimpleDateFormat("dd/MMM/yyyy").format(date);
+    }
     @Exclude
     public void addMove(Move move) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();

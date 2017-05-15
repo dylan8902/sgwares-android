@@ -32,7 +32,8 @@ public class GamesRecyclerViewAdapter extends RecyclerView.Adapter<GamesRecycler
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mGame = mGames.get(position);
-        holder.mKeyView.setText(holder.mGame.toString());
+        holder.mKeyView.setText(holder.mGame.getKey());
+        holder.mDateTimeView.setText(holder.mGame.getDateTimeCreatedAt());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,12 +53,14 @@ public class GamesRecyclerViewAdapter extends RecyclerView.Adapter<GamesRecycler
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
         public final TextView mKeyView;
+        public final TextView mDateTimeView;
         public Game mGame;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
             mKeyView = (TextView) view.findViewById(R.id.game_key);
+            mDateTimeView = (TextView) view.findViewById(R.id.game_date_time);
         }
 
         @Override
