@@ -21,7 +21,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @IgnoreExtraProperties
 public class Game {
 
-    public static final int SPACING = 200;
     private static final String TAG = Game.class.getSimpleName();
     private static final int DOT_SIZE = 6;
 
@@ -31,10 +30,12 @@ public class Game {
     private boolean open;
     private String background;
     private Object createdAt;
+    private int size;
 
     public Game() {
         this.moves = new CopyOnWriteArrayList<>();
         this.createdAt = ServerValue.TIMESTAMP;
+        this.size = 8;
     }
 
     @Exclude
@@ -89,6 +90,14 @@ public class Game {
         return createdAt;
     }
 
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
+
     @Exclude
     public String getDateTimeCreatedAt() {
         Date date = new Date((long) getCreatedAt());
@@ -119,6 +128,8 @@ public class Game {
 
     @Exclude
     public void draw(Canvas canvas) {
+        int spacing = canvas.getWidth() / getSize();
+
         Paint paint = new Paint();
         paint.setColor(Color.WHITE);
 
@@ -126,9 +137,9 @@ public class Game {
         canvas.drawColor(Color.parseColor(getBackground()));
 
         // Draw dots
-        for (int x = 0; x < canvas.getWidth(); x = x + SPACING) {
-            for (int y = 0; y < canvas.getHeight(); y = y + SPACING) {
-                canvas.drawCircle(x, y, DOT_SIZE, paint);
+        for (int x = 0; x < getSize(); x++) {
+            for (int y = 0; y < getSize(); y++) {
+                canvas.drawCircle(x * spacing, y * spacing, DOT_SIZE, paint);
             }
         }
 
@@ -136,14 +147,14 @@ public class Game {
         Paint winningPaint = new Paint();
         winningPaint.setStyle(Paint.Style.FILL);
         for (Move move : getMoves()) {
-            move.draw(canvas);
+            move.draw(canvas, getSize());
             // Draw the users box if this is a winning move
             if (isWinningMove(move)) {
                 winningPaint.setColor(Color.parseColor(move.getUser().getColour()));
-                Rect rect = new Rect((move.getX() * SPACING),
-                        (move.getY() * SPACING),
-                        (move.getX() * SPACING) + SPACING,
-                        (move.getY() * SPACING) + SPACING);
+                Rect rect = new Rect((move.getX() * spacing),
+                        (move.getY() * spacing),
+                        (move.getX() * spacing) + spacing,
+                        (move.getY() * spacing) + spacing);
                 canvas.drawRect(rect, winningPaint);
             }
         }

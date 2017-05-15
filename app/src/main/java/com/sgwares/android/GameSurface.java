@@ -85,18 +85,18 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
             Movement start = movements.get(0);
             Movement end = movements.get(movements.size() - 1);
             movements.clear();
-
-            int startX = Math.round(start.getX() / Game.SPACING);
-            int startY = Math.round(start.getY() / Game.SPACING);
-            int endX = Math.round(end.getX() / Game.SPACING);
-            int endY = Math.round(end.getY() / Game.SPACING);
-            if (endX > startX) {
+            int spacing = getWidth() / game.getSize();
+            int startX = Math.round(start.getX() / spacing);
+            int startY = Math.round(start.getY() / spacing);
+            int endX = Math.round(end.getX() / spacing);
+            int endY = Math.round(end.getY() / spacing);
+            if ((endX > startX) && (startY < game.getSize())) {
                 return new Move(startX, startY, 0, player);
-            } else if (endY > startY) {
+            } else if ((endY > startY) && (endY < game.getSize())) {
                 return new Move(startX, startY, 1, player);
-            } else if  (endY < startY) {
+            } else if  ((endY < startY) && (startY < game.getSize())) {
                 return new Move(startX, startY - 1, 1, player);
-            } else if  (endX < startX) {
+            } else if  ((endX < startX) && (startY < game.getSize())) {
                 return new Move(startX - 1, startY, 0, player);
             } else {
                 return null;

@@ -74,20 +74,22 @@ public class Move {
     }
 
     @Exclude
-    public void draw(Canvas canvas) {
+    public void draw(Canvas canvas, int gameWidth) {
+        int spacing = canvas.getWidth() / gameWidth;
+
         Paint whitePaint = new Paint();
         whitePaint.setColor(Color.WHITE);
         whitePaint.setStrokeWidth(4);
 
-        int startX = x * Game.SPACING;
-        int startY = y * Game.SPACING;
-        int endX = x * Game.SPACING;
-        int endY = y * Game.SPACING;
+        int startX = x * spacing;
+        int startY = y * spacing;
+        int endX = x * spacing;
+        int endY = y * spacing;
 
         if (direction == HORIZONTAL) {
-            endX = endX + Game.SPACING;
+            endX = endX + spacing;
         } else {
-            endY = endY + Game.SPACING;
+            endY = endY + spacing;
         }
 
         canvas.drawLine(startX, startY, endX, endY, whitePaint);
