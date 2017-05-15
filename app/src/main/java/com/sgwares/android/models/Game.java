@@ -10,6 +10,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.IgnoreExtraProperties;
+import com.google.firebase.database.ServerValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,9 +28,11 @@ public class Game {
     private boolean finished;
     private boolean open;
     private String background;
+    private Object createdAt;
 
     public Game() {
         this.moves = new CopyOnWriteArrayList<>();
+        this.createdAt = ServerValue.TIMESTAMP;
     }
 
     @Exclude
@@ -74,6 +77,14 @@ public class Game {
 
     public void setBackground(String background) {
         this.background = background;
+    }
+
+    public void setCreatedAt(Object createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Object getCreatedAt() {
+        return createdAt;
     }
 
     @Exclude
@@ -156,6 +167,14 @@ public class Game {
             }
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return "Game{" +
+                "key='" + key + '\'' +
+                ", createdAt=" + createdAt +
+                '}';
     }
 
 }
