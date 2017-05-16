@@ -2,6 +2,7 @@ package com.sgwares.android;
 
 import android.app.Activity;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
@@ -14,7 +15,6 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -174,10 +174,15 @@ public class GameActivity extends Activity {
      * Start the game, show game surface and setup handlers
      */
     private void startGame() {
-        mGameSurface = new GameSurface(getApplicationContext(), mGame, mUser);
         setContentView(R.layout.activity_game);
+
+        TextView title = (TextView) findViewById(R.id.title);
+        Typeface font = Typeface.createFromAsset(getAssets(),  "fonts/FunSized.ttf");
+        title.setTypeface(font);
+
         mScoreboard = (LinearLayout) findViewById(R.id.scoreboard);
-        RelativeLayout view = (RelativeLayout) findViewById(R.id.content_main);
+        LinearLayout view = (LinearLayout) findViewById(R.id.surface);
+        mGameSurface = new GameSurface(this, mGame, mUser);
         view.addView(mGameSurface, 0);
         setupMoveHandler();
         setupParticipantHandler();
