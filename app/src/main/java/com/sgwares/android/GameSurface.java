@@ -73,7 +73,6 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     private class Pen {
-        private static final int SIZE = 50;
         private List<Movement> movements;
         public Pen() {
             this.movements = new ArrayList<>();
@@ -107,7 +106,8 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
             paint.setColor(Color.WHITE);
             if (movements.size() > 0) {
                 Movement movement = movements.get(movements.size() - 1);
-                canvas.drawCircle(movement.getX(), movement.getY(), SIZE, paint);
+                int radius = (canvas.getWidth() / game.getSize()) / 5;
+                canvas.drawCircle(movement.getX(), movement.getY(), radius, paint);
             }
         }
     }

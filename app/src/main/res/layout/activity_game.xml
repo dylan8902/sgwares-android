@@ -15,7 +15,7 @@
         android:textAllCaps="true"
         android:textAlignment="center"
         android:text="@string/app_name"
-        android:textSize="64sp"
+        android:textSize="60sp"
         android:textColor="@color/colorAccent" />
 
     <LinearLayout

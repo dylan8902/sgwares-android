@@ -22,7 +22,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class Game {
 
     private static final String TAG = Game.class.getSimpleName();
-    private static final int DOT_SIZE = 6;
 
     private String key;
     private List<Move> moves;
@@ -137,9 +136,10 @@ public class Game {
         canvas.drawColor(Color.parseColor(getBackground()));
 
         // Draw dots
-        for (int x = 0; x < getSize(); x++) {
-            for (int y = 0; y < getSize(); y++) {
-                canvas.drawCircle(x * spacing, y * spacing, DOT_SIZE, paint);
+        int radius = spacing / 10;
+        for (int x = 0; x <= getSize(); x++) {
+            for (int y = 0; y <= getSize(); y++) {
+                canvas.drawCircle(x * spacing, y * spacing, radius, paint);
             }
         }
 
