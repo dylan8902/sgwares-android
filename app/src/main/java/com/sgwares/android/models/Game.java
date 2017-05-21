@@ -105,6 +105,10 @@ public class Game {
 
     @Exclude
     public void addMove(Move move) {
+        if (moves.contains(move)) {
+            Log.i(TAG, "This move has already been made. " + move.toString());
+            return;
+        }
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference movesRef = database.getReference("moves").child(getKey());
         DatabaseReference moveRef = movesRef.push();
@@ -148,8 +152,8 @@ public class Game {
         winningPaint.setStyle(Paint.Style.FILL);
         for (Move move : getMoves()) {
             move.draw(canvas, getSize());
-            // Draw the users box if this is a winning move
-            if (isWinningMove(move)) {
+            // Draw the users box if this completes box
+            if (completesBox(move)) {
                 winningPaint.setColor(Color.parseColor(move.getUser().getColour()));
                 Rect rect = new Rect((move.getX() * spacing),
                         (move.getY() * spacing),
@@ -161,7 +165,13 @@ public class Game {
 
     }
 
-    private boolean isWinningMove(Move move) {
+    /**
+     * This function only checks whether this move completes a box
+     * @param move the co-ords of the box
+     * @return true if box is complete
+     */
+    @Exclude
+    private boolean completesBox(Move move) {
         if (move.getDirection() == Move.HORIZONTAL) {
             List<Move> requiredMoves = new ArrayList<>();
             requiredMoves.add(new Move(move.getX(), move.getY() + 1, Move.HORIZONTAL, null));
@@ -181,6 +191,53 @@ public class Game {
             for (Move m : getMoves()) {
                 requiredMoves.remove(m);
                 if (requiredMoves.isEmpty()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * This function will check surrounding boxes as well as itself
+     * @param move the move made
+     * @return true if this move wins a box
+     */
+    @Exclude
+    private boolean isWinningMove(Move move) {
+        if (move.getDirection() == Move.HORIZONTAL) {
+            List<Move> below = new ArrayList<>();
+            below.add(new Move(move.getX(), move.getY() + 1, Move.HORIZONTAL, null));
+            below.add(new Move(move.getX(), move.getY(), Move.VERTICAL, null));
+            below.add(new Move(move.getX() + 1, move.getY(), Move.VERTICAL, null));
+
+            List<Move> above = new ArrayList<>();
+            above.add(new Move(move.getX(), move.getY() -1, Move.HORIZONTAL, null));
+            above.add(new Move(move.getX(), move.getY() -1, Move.VERTICAL, null));
+            above.add(new Move(move.getX() + 1, move.getY() -1, Move.VERTICAL, null));
+
+            for (Move m : moves) {
+                below.remove(m);
+                above.remove(m);
+                if (below.isEmpty() || above.isEmpty()) {
+                    return true;
+                }
+            }
+        } else if (move.getDirection() == Move.VERTICAL) {
+            List<Move> right = new ArrayList<>();
+            right.add(new Move(move.getX() + 1, move.getY(), Move.VERTICAL, null));
+            right.add(new Move(move.getX(), move.getY(), Move.HORIZONTAL, null));
+            right.add(new Move(move.getX(), move.getY() + 1, Move.HORIZONTAL, null));
+
+            List<Move> left = new ArrayList<>();
+            left.add(new Move(move.getX() - 1, move.getY(), Move.VERTICAL, null));
+            left.add(new Move(move.getX() - 1, move.getY(), Move.HORIZONTAL, null));
+            left.add(new Move(move.getX() - 1, move.getY() + 1, Move.HORIZONTAL, null));
+
+            for (Move m : getMoves()) {
+                right.remove(m);
+                left.remove(m);
+                if (right.isEmpty() || left.isEmpty()) {
                     return true;
                 }
             }
