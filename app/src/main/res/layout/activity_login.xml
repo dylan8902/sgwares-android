@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/login"
     android:layout_width="match_parent"
@@ -10,14 +11,29 @@
 
     <TextView
         style="@style/Base.TextAppearance.AppCompat.Caption"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Name" />
 
-    <EditText
-        android:id="@+id/name"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/name"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <ImageButton
+            android:layout_weight="0"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="regenerateName"
+            app:srcCompat="@drawable/refresh_icon" />
+
+    </LinearLayout>
 
     <TextView
         style="@style/Base.TextAppearance.AppCompat.Caption"
@@ -25,10 +41,25 @@
         android:layout_height="wrap_content"
         android:text="Colour" />
 
-    <EditText
-        android:id="@+id/colour"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/colour"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <ImageButton
+            android:layout_weight="0"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="regenerateColour"
+            app:srcCompat="@drawable/refresh_icon" />
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/login_button"

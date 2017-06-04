@@ -78,6 +78,14 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    public void regenerateName(View v) {
+        mName.setText(NameGenerator.generate());
+    }
+
+    public void regenerateColour(View v) {
+        mColour.setText(ColourGenerator.generate());
+    }
+
     /**
      * Check the colour is valid
      * @return true if valid, false if it is not
