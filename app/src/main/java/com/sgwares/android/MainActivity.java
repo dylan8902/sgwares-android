@@ -13,8 +13,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.sgwares.android.fragments.GamesFragment;
 import com.sgwares.android.fragments.LeaderboardFragment;
 import com.sgwares.android.fragments.SettingsFragment;
@@ -27,6 +33,7 @@ public class MainActivity extends AppCompatActivity
         GamesFragment.OnListFragmentInteractionListener {
 
     private static final String TAG = "MainActivity";
+    private static final int LOGIN_ACTIVITY_REQUEST_CODE = 4001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +43,22 @@ public class MainActivity extends AppCompatActivity
         FirebaseAuth auth = FirebaseAuth.getInstance();
         if (auth.getCurrentUser() == null) {
             Intent loginActivity = new Intent(this, LoginActivity.class);
-            startActivity(loginActivity);
+            startActivityForResult(loginActivity, LOGIN_ACTIVITY_REQUEST_CODE);
+        } else {
+            DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("users");
+            usersRef.child(auth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Log.d(TAG, "onCancelled: " + dataSnapshot.toString());
+                    User user = dataSnapshot.getValue(User.class);
+                    updateUserUI(user);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.d(TAG, "onCancelled: " + databaseError.getMessage());
+                }
+            });
         }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -132,6 +154,22 @@ public class MainActivity extends AppCompatActivity
         Intent gameActivity = new Intent(getApplicationContext(), GameActivity.class);
         gameActivity.putExtra(GameActivity.GAME_KEY, game.getKey());
         startActivity(gameActivity);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == LOGIN_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
+            User user = (User) data.getSerializableExtra(LoginActivity.USER_RESULT_KEY);
+            Log.d(TAG, "onActivityResult User: " + user);
+            updateUserUI(user);
+        }
+    }
+
+    private void updateUserUI(User user) {
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        View navigationHeaderView = navigationView.getHeaderView(0);
+        TextView name = (TextView) navigationHeaderView.findViewById(R.id.user_name);
+        name.setText(user.getName());
     }
 
 }

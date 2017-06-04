@@ -3,8 +3,10 @@ package com.sgwares.android.models;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.IgnoreExtraProperties;
 
+import java.io.Serializable;
+
 @IgnoreExtraProperties
-public class User {
+public class User implements Serializable {
 
     private String key;
     private String name;

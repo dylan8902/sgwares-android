@@ -1,5 +1,6 @@
 package com.sgwares.android;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -25,6 +26,7 @@ import com.sgwares.android.models.User;
 public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = "LoginActivity";
+    protected static final String USER_RESULT_KEY = "User";
     private FirebaseAuth mAuth;
     private DatabaseReference usersRef;
     private EditText mName;
@@ -104,9 +106,10 @@ public class LoginActivity extends AppCompatActivity {
 
     /**
      * Create the user in the database and subscribe to user notifications
+     * complete the activity with the user object as the result
      */
     private void processSignIn() {
-        User user = new User(mAuth.getCurrentUser());
+        final User user = new User(mAuth.getCurrentUser());
         user.setName(mName.getText().toString());
         user.setColour(mColour.getText().toString());
         FirebaseMessaging.getInstance().subscribeToTopic(user.getKey());
@@ -115,6 +118,9 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 Log.d(TAG, "Create user onComplete: " + task.isSuccessful());
+                Intent output = new Intent();
+                output.putExtra(USER_RESULT_KEY, user);
+                setResult(RESULT_OK, output);
                 finish();
             }
         });
