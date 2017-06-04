@@ -31,7 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="regenerateName"
-            app:srcCompat="@drawable/refresh_icon" />
+            app:srcCompat="@drawable/icon_refresh" />
 
     </LinearLayout>
 
@@ -57,7 +57,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="regenerateColour"
-            app:srcCompat="@drawable/refresh_icon" />
+            app:srcCompat="@drawable/icon_refresh" />
 
     </LinearLayout>
 
