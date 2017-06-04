@@ -1,12 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
     <PreferenceCategory
-        android:title="Account"
-        android:key="pref_key_account">
+        android:title="You"
+        android:key="pref_key_you">
+
+        <EditTextPreference
+            android:title="Name"
+            android:key="pref_key_name" />
+
+        <EditTextPreference
+            android:title="Colour"
+            android:key="pref_key_colour" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="Privacy"
+        android:key="pref_key_privacy">
+
         <CheckBoxPreference
             android:key="pref_key_account_visible"
             android:summary="Your profile is visible so anyone can invite you to a game"
             android:title="Profile Visible"
             android:defaultValue="true" />
+
     </PreferenceCategory>
+
 </PreferenceScreen>
