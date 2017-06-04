@@ -1,23 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/login"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:padding="12dp"
     android:orientation="vertical"
     tools:context="com.sgwares.android.LoginActivity">
 
     <TextView
-        style="@style/Base.TextAppearance.AppCompat.Headline"
+        style="@style/Base.TextAppearance.AppCompat.Caption"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Would you like to setup your profile?" />
+        android:text="Name" />
+
+    <EditText
+        android:id="@+id/name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        style="@style/Base.TextAppearance.AppCompat.Caption"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Colour" />
+
+    <EditText
+        android:id="@+id/colour"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <Button
-        android:id="@+id/not_now"
+        android:id="@+id/login_button"
         style="@style/Base.Widget.AppCompat.Button"
         android:layout_width="344dp"
         android:layout_height="wrap_content"
-        android:text="Not Now" />
+        android:text="Continue" />
 
 </LinearLayout>
