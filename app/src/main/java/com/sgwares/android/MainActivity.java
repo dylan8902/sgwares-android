@@ -1,6 +1,7 @@
 package com.sgwares.android;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -13,6 +14,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -170,6 +172,8 @@ public class MainActivity extends AppCompatActivity
         View navigationHeaderView = navigationView.getHeaderView(0);
         TextView name = (TextView) navigationHeaderView.findViewById(R.id.user_name);
         name.setText(user.getName());
+        LinearLayout navigationHeader = (LinearLayout) navigationHeaderView.findViewById(R.id.header);
+        navigationHeader.setBackgroundColor(Color.parseColor(user.getColour()));
     }
 
 }
