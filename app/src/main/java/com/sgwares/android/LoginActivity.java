@@ -1,8 +1,9 @@
 package com.sgwares.android;
 
 import android.content.Intent;
-import android.graphics.Color;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -19,9 +20,11 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.sgwares.android.fragments.SettingsFragment;
 import com.sgwares.android.generators.ColourGenerator;
 import com.sgwares.android.generators.NameGenerator;
 import com.sgwares.android.models.User;
+import com.sgwares.android.validators.UserValidator;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -53,16 +56,23 @@ public class LoginActivity extends AppCompatActivity {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!nameIsValid()) {
+                String name = mName.getText().toString();
+                String colour = mColour.getText().toString();
+                if (!UserValidator.isNameValid(name)) {
                     Snackbar.make(findViewById(R.id.login), "Name is not valid", Snackbar.LENGTH_SHORT).show();
                     return;
-                } else if (!colourIsValid()) {
+                } else if (!UserValidator.isColourValid(colour)) {
                     Snackbar.make(findViewById(R.id.login), "Colour is not valid", Snackbar.LENGTH_SHORT).show();
                     return;
                 }
                 mName.setInputType(InputType.TYPE_NULL);
                 mColour.setInputType(InputType.TYPE_NULL);
                 btn.setEnabled(false);
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putString(SettingsFragment.PREF_KEY_NAME, name);
+                editor.putString(SettingsFragment.PREF_KEY_COLOUR, colour);
+                editor.apply();
                 mAuth.signInAnonymously().addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
@@ -84,32 +94,6 @@ public class LoginActivity extends AppCompatActivity {
 
     public void regenerateColour(View v) {
         mColour.setText(ColourGenerator.generate());
-    }
-
-    /**
-     * Check the colour is valid
-     * @return true if valid, false if it is not
-     */
-    private boolean colourIsValid() {
-        try {
-            Color.parseColor(mColour.getText().toString());
-            return true;
-        } catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
-            return false;
-        }
-    }
-
-    /**
-     * Check the name is valid
-     * @return true if valid, false if it is not
-     */
-    private boolean nameIsValid() {
-        String name = mName.getText().toString();
-        if (name.isEmpty()) {
-            return false;
-        } else {
-            return true;
-        }
     }
 
     /**

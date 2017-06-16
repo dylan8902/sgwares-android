@@ -18,9 +18,9 @@ import com.sgwares.android.models.User;
 public class SettingsFragment extends PreferenceFragment
         implements SharedPreferences.OnSharedPreferenceChangeListener {
 
+    public static final String PREF_KEY_NAME = "pref_key_name";
+    public static final String PREF_KEY_COLOUR = "pref_key_colour";
     private static final String TAG = "SettingsFragment";
-    private static final String PREF_KEY_NAME = "pref_key_name";
-    private static final String PREF_KEY_COLOUR = "pref_key_colour";
     private DatabaseReference mUserRef;
     private User mUser;
     private EditTextPreference mNamePref;
