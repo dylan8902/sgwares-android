@@ -159,11 +159,13 @@ public class GameActivity extends Activity {
      */
     private void inviteParticipant(User user) {
         Log.d(TAG, "inviteParticipant: " + user);
-        RemoteMessage message = new RemoteMessage.Builder(user.getToken())
-                .setMessageId(UUID.randomUUID().toString())
-                .addData("body", "Hello")
-                .build();
-        FirebaseMessaging.getInstance().send(message);
+        if (user.getToken() != null) {
+            RemoteMessage message = new RemoteMessage.Builder(user.getToken())
+                    .setMessageId(UUID.randomUUID().toString())
+                    .addData("body", "Hello")
+                    .build();
+            FirebaseMessaging.getInstance().send(message);
+        }
         mPossibleParticipants.remove(user);
         mAdapter.notifyDataSetChanged();
         Snackbar.make(findViewById(R.id.content_main), user.getName() + " invited", Snackbar.LENGTH_LONG)
