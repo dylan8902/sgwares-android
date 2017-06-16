@@ -15,16 +15,4 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory
-        android:title="Privacy"
-        android:key="pref_key_privacy">
-
-        <CheckBoxPreference
-            android:key="pref_key_account_visible"
-            android:summary="Your profile is visible so anyone can invite you to a game"
-            android:title="Profile Visible"
-            android:defaultValue="true" />
-
-    </PreferenceCategory>
-
 </PreferenceScreen>
