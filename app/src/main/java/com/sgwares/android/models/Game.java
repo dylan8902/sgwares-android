@@ -28,6 +28,7 @@ public class Game {
     private boolean finished;
     private boolean open;
     private String background;
+    private String turn;
     private Object createdAt;
     private int size;
 
@@ -79,6 +80,14 @@ public class Game {
 
     public void setBackground(String background) {
         this.background = background;
+    }
+
+    public String getTurn() {
+        return turn;
+    }
+
+    public void setTurn(String turn) {
+        this.turn = turn;
     }
 
     public void setCreatedAt(Object createdAt) {
