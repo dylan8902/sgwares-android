@@ -138,6 +138,7 @@ public class GameActivity extends Activity {
         mGame = new Game();
         mGame.setKey(mGameRef.getKey());
         mGame.setBackground("#bbbbbb");
+        mGame.setTurn(mUser.getKey());
         mGameRef.setValue(mGame);
         mParticipantsRef = mDatabase.getReference("participants").child(mGameRef.getKey());
         mParticipantsRef.child(mUser.getKey()).setValue(mUser);
