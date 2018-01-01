@@ -51,6 +51,7 @@ public class GameActivity extends Activity {
     private ChildEventListener mMovesListener;
     private ChildEventListener mPossibleParticipantListener;
     private ChildEventListener mParticipantsListener;
+    private ValueEventListener mTurnListener;
     private Game mGame;
     private GameSurface mGameSurface;
     private LinearLayout mScoreboard;
@@ -189,6 +190,7 @@ public class GameActivity extends Activity {
         view.addView(mGameSurface, 0);
         setupMoveHandler();
         setupParticipantHandler();
+        setupTurnHandler();
     }
 
     /**
@@ -321,6 +323,26 @@ public class GameActivity extends Activity {
         mParticipantsRef.addChildEventListener(mParticipantsListener);
     }
 
+    /**
+     * Listen for who's turn it is
+     */
+    private void setupTurnHandler() {
+        mTurnListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Game updated = dataSnapshot.getValue(Game.class);
+                mGame.setTurn(updated.getTurn());
+                Log.d(TAG, "Turn is now: " + mGame.getTurn());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w(TAG, "onCancelled", databaseError.toException());
+            }
+        };
+        mGameRef.addValueEventListener(mTurnListener);
+    }
+
     @Override
     public void onBackPressed() {
         Log.d(TAG, "onBackPressed: end game");
@@ -339,6 +361,9 @@ public class GameActivity extends Activity {
         }
         if ((mParticipantsRef != null) && (mParticipantsListener != null)) {
             mParticipantsRef.removeEventListener(mParticipantsListener);
+        }
+        if ((mGameRef != null) && (mTurnListener != null)) {
+            mGameRef.removeEventListener(mTurnListener);
         }
         super.onDestroy();
     }

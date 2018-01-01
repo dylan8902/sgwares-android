@@ -175,6 +175,17 @@ public class Game {
     }
 
     /**
+     * This function checks whether it's the user's turn
+     * @param user the user to check
+     * @return true if it is the user's turn
+     */
+    @Exclude
+    public boolean isUsersMove(User user) {
+        Log.d(TAG, "is it " + user.getKey() + "'s turn? " + turn);
+        return turn.equals(user.getKey());
+    }
+
+    /**
      * This function only checks whether this move completes a box
      * @param move the co-ords of the box
      * @return true if box is complete

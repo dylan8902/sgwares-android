@@ -55,10 +55,13 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
             pen.addMovement(new Movement(event.getX(), event.getY()));
             invalidate();
         } else if (event.getAction() == MotionEvent.ACTION_UP) {
-            // TODO Check it is the players' turn, will be in game object
             Move move = pen.completeMove();
-            if (move != null) {
+            if ((move != null) && (game.isUsersMove(player))) {
+                Log.d(TAG, "Adding move as it's players turn");
                 game.addMove(move);
+                return true;
+            } else if (move != null) {
+                Log.d(TAG, "Not player's turn");
             }
             invalidate();
         }
